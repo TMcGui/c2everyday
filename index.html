@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C2Everyday</title>
+<meta name="description" content="A daily idiom puzzle for advanced English learners. Four guesses, four hints, one expression a day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;800&display=swap">
+<style>
+  :root{
+    --bg:#ffffff; --text:#1a1a1b; --muted:#6b6f76; --line:#d3d6da; --line-strong:#878a8c; --surface:#f2f3f5;
+    --green:#6aaa64; --yellow:#c9b458; --grey:#787c7e; --on-tile:#ffffff;
+    --btn:#1a1a1b; --btn-text:#ffffff; --focus:#2f6fed;
+    --toast-bg:#1a1a1b; --toast-text:#ffffff; --scrim:rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121213; --text:#e7e7e8; --muted:#9a9ca3; --line:#3a3a3c; --line-strong:#565758; --surface:#1e1e20;
+      --green:#538d4e; --yellow:#b59f3b; --grey:#3a3a3c; --on-tile:#ffffff;
+      --btn:#e7e7e8; --btn-text:#121213; --focus:#7aa2ff;
+      --toast-bg:#e7e7e8; --toast-text:#121213; --scrim:rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121213; --text:#e7e7e8; --muted:#9a9ca3; --line:#3a3a3c; --line-strong:#565758; --surface:#1e1e20;
+    --green:#538d4e; --yellow:#b59f3b; --grey:#3a3a3c; --on-tile:#ffffff;
+    --btn:#e7e7e8; --btn-text:#121213; --focus:#7aa2ff;
+    --toast-bg:#e7e7e8; --toast-text:#121213; --scrim:rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; padding-inline:16px; padding-block:0;
+    background:var(--bg); color:var(--text);
+    font-family:"Libre Franklin","Franklin Gothic Medium","Helvetica Neue",Arial,sans-serif;
+    font-size:16px; line-height:1.4;
+  }
+  button, input, a{font-family:inherit}
+  :focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+  /* ---------- header ---------- */
+  .top{
+    max-width:500px; margin:0 auto; height:56px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{margin:0; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1}
+  .wordmark span{color:var(--green)}
+  .icon{
+    width:36px; height:36px; border:0; border-radius:50%; background:transparent; color:var(--text);
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .icon:hover{background:var(--surface)}
+  .icon .q{
+    width:22px; height:22px; border:2px solid currentColor; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:14px;
+  }
+  .icon svg{width:22px; height:22px; display:block}
+
+  /* ---------- game column ---------- */
+  .game{max-width:500px; margin:0 auto; padding-block:16px 48px; display:flex; flex-direction:column; gap:20px}
+  .dateline{margin:0; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .note{
+    margin:0; padding:10px 12px; border-radius:6px; background:var(--surface); font-size:13px; color:var(--muted);
+  }
+  .note a{color:var(--text)}
+
+  /* ---------- hints ---------- */
+  .hints{border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .hint{display:grid; grid-template-columns:86px 1fr; gap:12px; padding:12px 14px; border-top:1px solid var(--line)}
+  .hint:first-child{border-top:0}
+  .hint-label{
+    font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:3px;
+  }
+  .hint-body{font-size:15px; line-height:1.45; min-width:0; overflow-wrap:anywhere}
+  .hint.locked .hint-label{opacity:.55}
+  .hint.locked .hint-body{color:var(--muted); font-style:italic}
+  .hint.fresh .hint-body{animation:fadeIn .4s ease-out}
+  .chip{
+    display:inline-block; vertical-align:middle; margin-left:8px; padding:1px 8px 2px;
+    border:1px solid var(--line-strong); border-radius:999px;
+    font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
+  }
+  .vowels{display:flex; flex-wrap:wrap; gap:6px 16px; padding-top:2px}
+  .vw{display:inline-flex; gap:4px; align-items:flex-end}
+  .vb{
+    width:20px; height:26px; border-bottom:2px solid var(--line-strong);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:16px; line-height:1;
+  }
+  .vb.v{border-bottom-color:var(--text)}
+  .vp{font-weight:800; font-size:16px; line-height:26px}
+
+  /* ---------- guess grid ---------- */
+  .grid{display:flex; flex-direction:column; gap:6px}
+  .row{display:flex; flex-wrap:wrap; gap:6px}
+  .tile{
+    height:46px; min-width:46px; padding:0 12px; border:2px solid var(--line); border-radius:3px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:15px; letter-spacing:.02em; text-transform:uppercase; line-height:1;
+  }
+  .tile.empty{min-width:72px; padding:0}
+  .row.current .tile.empty{border-color:var(--line-strong)}
+  .tile.g{background:var(--green); border-color:var(--green); color:var(--on-tile)}
+  .tile.y{background:var(--yellow); border-color:var(--yellow); color:var(--on-tile)}
+  .tile.x{background:var(--grey); border-color:var(--grey); color:var(--on-tile)}
+  .tile.reveal{animation:pop .18s ease-out}
+
+  /* ---------- entry ---------- */
+  .entry{display:flex; gap:8px}
+  .entry input{
+    flex:1; min-width:0; height:48px; padding:0 14px; border:2px solid var(--line); border-radius:6px;
+    background:var(--bg); color:var(--text); font-size:16px;
+  }
+  .entry input::placeholder{color:var(--muted)}
+  .entry input:focus{outline:none; border-color:var(--text)}
+  .primary, .secondary{
+    height:48px; padding:0 18px; border-radius:6px; font-size:15px; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; white-space:nowrap;
+  }
+  .primary{border:0; background:var(--btn); color:var(--btn-text)}
+  .secondary{border:2px solid var(--line-strong); background:transparent; color:var(--text)}
+  .primary:hover{opacity:.9}
+  .secondary:hover{background:var(--surface)}
+
+  /* ---------- result ---------- */
+  .result{border-top:1px solid var(--line); padding-top:20px; display:flex; flex-direction:column; gap:10px}
+  .verdict{margin:0; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .answer{margin:0; font-size:30px; font-weight:800; letter-spacing:-.02em; line-height:1.1; text-wrap:balance}
+  .answer .chip{margin-left:10px; vertical-align:middle; position:relative; top:-4px}
+  .meaning{margin:0; font-size:16px}
+  .example{margin:0; color:var(--muted); font-style:italic}
+  .formline{margin:0; font-size:13px; color:var(--muted)}
+  .formline b{font-weight:600; color:var(--text)}
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+  .textlink{color:var(--text); text-decoration:underline; text-underline-offset:3px; font-size:14px; width:fit-content}
+  .next{margin:6px 0 0; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed; top:72px; left:50%; transform:translateX(-50%); z-index:20;
+    max-width:calc(100% - 32px); padding:10px 16px; border-radius:6px;
+    background:var(--toast-bg); color:var(--toast-text); font-size:14px; font-weight:600; text-align:center;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .toast.show{opacity:1}
+
+  /* ---------- modals ---------- */
+  .modal{position:fixed; inset:0; z-index:30; background:var(--scrim); display:flex; align-items:center; justify-content:center; padding:16px}
+  .modal-card{
+    position:relative; width:100%; max-width:440px; max-height:90vh; overflow:auto;
+    background:var(--bg); color:var(--text); border-radius:10px; padding:22px 22px 24px;
+    box-shadow:0 12px 40px rgba(0,0,0,.25);
+  }
+  .modal-card h2{margin:0 0 14px; font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase}
+  .modal-card p{margin:0 0 10px; font-size:15px}
+  .modal-card p:last-child{margin-bottom:0}
+  .close{position:absolute; top:10px; right:10px}
+  .legend{display:flex; flex-direction:column; gap:8px; margin:12px 0 14px}
+  .legend div{display:flex; align-items:center; gap:10px; font-size:14px}
+  .legend .tile{height:34px; min-width:34px; padding:0 8px; font-size:12px}
+  .steps{margin:0 0 6px; padding-left:18px; font-size:15px}
+  .steps li{margin-bottom:4px}
+  .statrow{display:flex; gap:8px; margin-bottom:18px}
+  .stat{flex:1; text-align:center}
+  .stat b{display:block; font-size:28px; font-weight:800; line-height:1.1; font-variant-numeric:tabular-nums}
+  .stat span{font-size:11px; color:var(--muted); line-height:1.2; display:block; margin-top:2px}
+  .dist{display:flex; flex-direction:column; gap:5px}
+  .bar{display:flex; align-items:center; gap:8px; font-size:13px; font-variant-numeric:tabular-nums}
+  .bar em{width:12px; font-style:normal; font-weight:600}
+  .bar i{
+    display:block; height:20px; min-width:22px; padding:0 6px; border-radius:2px;
+    background:var(--grey); color:#fff; font-style:normal; font-weight:700; font-size:12px; line-height:20px; text-align:right;
+  }
+  .bar i.hl{background:var(--green)}
+  .empty-stats{color:var(--muted); font-size:14px}
+
+  @keyframes pop{0%{transform:scale(.92)} 60%{transform:scale(1.06)} 100%{transform:scale(1)}}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    .tile.reveal, .hint.fresh .hint-body{animation:none}
+    .toast{transition:none}
+  }
+  @media (max-width:400px){
+    .hint{grid-template-columns:1fr; gap:4px}
+    .answer{font-size:26px}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon" id="btnHelp" type="button" aria-label="How to play"><span class="q">?</span></button>
+  <h1 class="wordmark"><span>C2</span>Everyday</h1>
+  <button class="icon" id="btnStats" type="button" aria-label="Statistics">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+      <path d="M5 20V10M12 20V4M19 20v-7"/>
+    </svg>
+  </button>
+</header>
+
+<main class="game">
+  <p class="dateline" id="dateline"></p>
+  <p class="note" id="practiceNote" hidden></p>
+
+  <section class="hints" aria-label="Hints">
+    <div class="hint" id="hint1"><div class="hint-label">Hint 1 · Words</div><div class="hint-body" id="hintBody1"></div></div>
+    <div class="hint locked" id="hint2"><div class="hint-label">Hint 2 · Meaning</div><div class="hint-body" id="hintBody2">Unlocks after a wrong guess</div></div>
+    <div class="hint locked" id="hint3"><div class="hint-label">Hint 3 · Form</div><div class="hint-body" id="hintBody3">Unlocks after a wrong guess</div></div>
+    <div class="hint locked" id="hint4"><div class="hint-label">Hint 4 · Vowels</div><div class="hint-body" id="hintBody4">Unlocks after a wrong guess</div></div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Your guesses"></section>
+
+  <form class="entry" id="entry" autocomplete="off">
+    <input id="guessInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type the expression…" aria-label="Your guess" maxlength="80">
+    <button class="primary" id="btnGuess" type="submit">Guess</button>
+  </form>
+
+  <section class="result" id="result" hidden aria-live="polite">
+    <p class="verdict" id="verdict"></p>
+    <p class="answer"><span id="answerText"></span><span class="chip" id="chipRegister"></span></p>
+    <p class="meaning" id="resMeaning"></p>
+    <p class="example" id="resExample"></p>
+    <p class="formline">Form: <b id="resForm"></b></p>
+    <div class="actions">
+      <a class="primary" id="linkWatch" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        Watch it in use
+      </a>
+      <button class="secondary" id="btnShare" type="button">Share</button>
+    </div>
+    <a class="textlink" id="linkYarn" target="_blank" rel="noopener">Find it in movie &amp; TV clips</a>
+    <p class="next" id="nextLine"></p>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="modalHelp" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <button class="icon close" id="closeHelp" type="button" aria-label="Close">✕</button>
+    <h2 id="helpTitle">How to play</h2>
+    <p>Guess the idiom or expression in 4 tries. Every wrong guess unlocks the next hint:</p>
+    <ol class="steps">
+      <li>How many words it has</li>
+      <li>What it means, and whether it's casual, formal, or modern slang</li>
+      <li>Its form (verb phrase, noun phrase, single word…)</li>
+      <li>All of its vowels</li>
+    </ol>
+    <p>The tiles show which words you got right:</p>
+    <div class="legend">
+      <div><span class="tile g">bite</span> Right word, right place</div>
+      <div><span class="tile y">the</span> In the expression, different place</div>
+      <div><span class="tile x">dust</span> Not in the expression</div>
+    </div>
+    <p>Win or lose, you get a clip of real people using it. A new expression arrives every day at midnight.</p>
+  </div>
+</div>
+
+<div class="modal" id="modalStats" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+    <button class="icon close" id="closeStats" type="button" aria-label="Close">✕</button>
+    <h2 id="statsTitle">Statistics</h2>
+    <div class="statrow">
+      <div class="stat"><b id="stPlayed">0</b><span>Played</span></div>
+      <div class="stat"><b id="stWin">0</b><span>Win %</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>Current streak</span></div>
+      <div class="stat"><b id="stMax">0</b><span>Max streak</span></div>
+    </div>
+    <h2>Guess distribution</h2>
+    <div class="dist" id="dist"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     SETTINGS
+     ===================================================================== */
+  var SITE_NAME   = 'C2Everyday';
+  var START_DATE  = '2026-09-13';   // Puzzle #1 appears on this date (local time)
+  var MAX_GUESSES = 4;
+
+  /* =====================================================================
+     PUZZLE BANK
+     One entry per day, in order. Puzzle #1 is the first entry, #2 the
+     second, and so on. When the list runs out it starts again from #1.
+
+     Fields:
+       answer   – the expression, written the way it should be shown
+       accept   – (optional) other spellings/forms that count as correct
+       register – "casual", "formal", or "modern slang"
+       meaning  – plain-English definition (hint 2)
+       form     – grammatical form (hint 3)
+       example  – one natural sentence, shown after the game
+       video    – (optional) a specific YouTube link. Leave "" to send
+                  players to YouGlish, which finds YouTube clips of the
+                  expression automatically.
+     ===================================================================== */
+  var PUZZLES = [
+    { answer: "bite the bullet", accept: ["bit the bullet"], register: "casual",
+      meaning: "to force yourself to do something unpleasant or difficult that you've been putting off",
+      form: "Verb phrase — verb + the + noun (the verb changes: bit, bitten)",
+      example: "I finally bit the bullet and booked the dentist.", video: "" },
+
+    { answer: "notwithstanding", accept: [], register: "formal",
+      meaning: "despite; in spite of — common in contracts, reports, and careful writing",
+      form: "Single word — preposition (it can also come after the noun it refers to)",
+      example: "Notwithstanding the delays, the project came in under budget.", video: "" },
+
+    { answer: "touch grass", accept: ["go touch grass"], register: "modern slang",
+      meaning: "to log off and go outside; a way of telling someone they've spent too long online and lost perspective",
+      form: "Verb phrase — verb + noun (usually as a command)",
+      example: "You've been arguing with strangers for three hours. Touch grass.", video: "" },
+
+    { answer: "the elephant in the room", accept: ["elephant in the room", "an elephant in the room"], register: "casual",
+      meaning: "an obvious problem that everyone is aware of but nobody wants to mention",
+      form: "Noun phrase — the + noun + prepositional phrase",
+      example: "Nobody mentioned the layoffs. It was the elephant in the room all meeting.", video: "" },
+
+    { answer: "in light of", accept: [], register: "formal",
+      meaning: "considering; because of — used when new information or a changed situation affects a decision",
+      form: "Prepositional phrase — preposition + noun + preposition (followed by a noun)",
+      example: "In light of the new evidence, the board reversed its decision.", video: "" },
+
+    { answer: "rent free", accept: ["rent-free", "living rent free", "in your head rent free", "living in your head rent free"], register: "modern slang",
+      meaning: "occupying someone's mind constantly without them wanting it to — usually 'living in your head rent free'",
+      form: "Adverbial phrase — noun + adjective (used after 'live in someone's head')",
+      example: "She blocked him months ago, but he's still living in her head rent free.", video: "" },
+
+    { answer: "Monday morning quarterback", accept: ["a monday morning quarterback", "monday-morning quarterback"], register: "casual",
+      meaning: "a person who criticizes decisions after the result is already known, when it's easy to say what should have been done (from American football)",
+      form: "Noun phrase — day + noun + noun (used as a compound noun)",
+      example: "Everyone's a Monday morning quarterback after a bad trade.", video: "" },
+
+    { answer: "par for the course", accept: [], register: "casual",
+      meaning: "what you'd expect in a given situation, especially something disappointing; normal (from golf)",
+      form: "Fixed expression — noun + prepositional phrase (used after 'be')",
+      example: "Delays at that airport are par for the course.", video: "" },
+
+    { answer: "err on the side of caution", accept: ["erred on the side of caution", "erring on the side of caution"], register: "formal",
+      meaning: "to choose the safer, more careful option when you're not sure",
+      form: "Verb phrase — verb + prepositional phrase + of + noun",
+      example: "We erred on the side of caution and cancelled the outdoor event.", video: "" },
+
+    { answer: "the ick", accept: ["ick", "get the ick", "got the ick", "give the ick"], register: "modern slang",
+      meaning: "a sudden feeling of disgust toward someone you were attracted to, usually triggered by something small",
+      form: "Noun phrase — the + noun (used with 'get' or 'give')",
+      example: "He clapped when the plane landed and she got the ick instantly.", video: "" },
+
+    { answer: "read the room", accept: [], register: "casual",
+      meaning: "to notice the mood and feelings of the people around you and adjust what you say or do",
+      form: "Verb phrase — verb + the + noun (often as a command or a criticism)",
+      example: "He started telling jokes at the memorial. Read the room, man.", video: "" },
+
+    { answer: "by and large", accept: [], register: "formal",
+      meaning: "generally speaking; on the whole",
+      form: "Adverbial phrase — preposition + and + adjective (usually at the start of a sentence)",
+      example: "By and large, the feedback was positive.", video: "" },
+
+    { answer: "throw shade", accept: ["throwing shade", "throw shade at someone", "threw shade"], register: "modern slang",
+      meaning: "to subtly insult or show contempt for someone, often without naming them",
+      form: "Verb phrase — verb + noun (often 'throw shade at someone')",
+      example: "Her acceptance speech was basically throwing shade at her ex-manager.", video: "" },
+
+    { answer: "kick the can down the road", accept: ["kicking the can down the road", "kicked the can down the road"], register: "casual",
+      meaning: "to postpone dealing with a problem, leaving it for someone else later (common in political and business news)",
+      form: "Verb phrase — verb + the + noun + prepositional phrase",
+      example: "Congress kicked the can down the road again instead of fixing the budget.", video: "" },
+
+    { answer: "to that end", accept: [], register: "formal",
+      meaning: "for that purpose; in order to achieve what was just mentioned",
+      form: "Prepositional phrase — preposition + determiner + noun (links two sentences)",
+      example: "We want faster response times. To that end, we're hiring two more support staff.", video: "" },
+
+    { answer: "main character energy", accept: [], register: "modern slang",
+      meaning: "the confident attitude of someone who acts as if they're the star of the story — can be admiring or mocking",
+      form: "Noun phrase — adjective + noun + noun",
+      example: "She walked into the party like she owned it. Pure main character energy.", video: "" },
+
+    { answer: "hit the ground running", accept: [], register: "casual",
+      meaning: "to start a new job or project with energy and be effective immediately",
+      form: "Verb phrase — verb + the + noun + -ing verb",
+      example: "We need someone who can hit the ground running in September.", video: "" },
+
+    { answer: "a moot point", accept: ["moot point", "moot"], register: "formal",
+      meaning: "a question that no longer matters because circumstances have changed; not worth arguing about",
+      form: "Noun phrase — article + adjective + noun (used after 'be')",
+      example: "Whether we should have hired more staff is a moot point now that the contract's cancelled.", video: "" },
+
+    { answer: "ghost", accept: ["ghosted", "ghosting", "ghost someone"], register: "modern slang",
+      meaning: "to suddenly stop replying to someone's messages and disappear from their life with no explanation",
+      form: "Single word — regular verb (ghosted, ghosting)",
+      example: "We had three great dates and then he just ghosted me.", video: "" },
+
+    { answer: "throw a Hail Mary", accept: ["hail mary", "a hail mary", "threw a hail mary"], register: "casual",
+      meaning: "to make a desperate last attempt that has little chance of success (from a long, hopeful pass in American football)",
+      form: "Verb phrase — verb + a + proper noun used as a noun",
+      example: "With ten seconds left, they threw a Hail Mary and somehow won.", video: "" },
+
+    { answer: "at your earliest convenience", accept: ["at his earliest convenience", "at her earliest convenience", "at their earliest convenience", "earliest convenience"], register: "formal",
+      meaning: "as soon as you reasonably can — a polite way to say 'soon' in emails",
+      form: "Prepositional phrase — preposition + possessive + superlative adjective + noun",
+      example: "Please sign and return the form at your earliest convenience.", video: "" },
+
+    { answer: "side quest", accept: ["a side quest"], register: "modern slang",
+      meaning: "an unplanned detour or small task that pulls you away from your main goal (from video games)",
+      form: "Noun phrase — noun + noun",
+      example: "I went out for milk and ended up on a two-hour side quest at the hardware store.", video: "" },
+
+    { answer: "on the fence", accept: ["sitting on the fence", "sit on the fence"], register: "casual",
+      meaning: "undecided; unable to choose between two options",
+      form: "Prepositional phrase — preposition + the + noun (used after 'be' or 'sit')",
+      example: "I'm still on the fence about moving to Denver.", video: "" },
+
+    { answer: "for all intents and purposes", accept: [], register: "formal",
+      meaning: "in every practical sense; effectively, even if not officially",
+      form: "Adverbial phrase — preposition + all + noun + and + noun",
+      example: "The old policy is, for all intents and purposes, dead.", video: "" },
+
+    { answer: "gatekeep", accept: ["gatekeeping", "gate keep", "gatekeeping something"], register: "modern slang",
+      meaning: "to control who gets access to something — a hobby, a place, information — and keep it exclusive",
+      form: "Single word — verb (gatekeeping, gatekept)",
+      example: "Stop gatekeeping the recipe and just tell me what's in the sauce.", video: "" },
+
+    { answer: "spill the beans", accept: ["spilled the beans", "spilt the beans"], register: "casual",
+      meaning: "to reveal a secret, usually by accident or because you couldn't resist",
+      form: "Verb phrase — verb + the + plural noun",
+      example: "Who spilled the beans about the surprise party?", video: "" },
+
+    { answer: "the lesser of two evils", accept: ["lesser of two evils"], register: "formal",
+      meaning: "the less harmful of two bad options",
+      form: "Noun phrase — the + comparative adjective + of + number + noun",
+      example: "Neither candidate excited her, so she voted for the lesser of two evils.", video: "" },
+
+    { answer: "no cap", accept: [], register: "modern slang",
+      meaning: "no lie; seriously; I'm not exaggerating",
+      form: "Fixed expression — no + noun (at the start or end of a statement)",
+      example: "That was the best taco I've ever had, no cap.", video: "" },
+
+    { answer: "step up to the plate", accept: ["stepped up to the plate", "stepping up to the plate"], register: "casual",
+      meaning: "to take responsibility and act when something needs doing (from baseball)",
+      form: "Verb phrase — phrasal verb + prepositional phrase",
+      example: "Nobody wanted to lead the project, so Maria stepped up to the plate.", video: "" },
+
+    { answer: "in the weeds", accept: ["get in the weeds", "get into the weeds", "into the weeds"], register: "casual",
+      meaning: "lost in too many small details — or, in restaurants, overwhelmed with work",
+      form: "Prepositional phrase — preposition + the + plural noun (used after 'be' or 'get')",
+      example: "Let's not get in the weeds on font choices — the deadline is Friday.", video: "" },
+
+    { answer: "delulu", accept: ["delusional"], register: "modern slang",
+      meaning: "delusional in a playful, self-aware way — believing something unrealistic because it's more fun",
+      form: "Single word — adjective (a shortened, doubled form of a longer word)",
+      example: "I know he's a celebrity, but I'm delulu enough to think he'll reply.", video: "" },
+
+    { answer: "play devil's advocate", accept: ["devils advocate", "playing devils advocate", "the devils advocate"], register: "casual",
+      meaning: "to argue the opposite side of an idea in order to test it, even if you don't believe it yourself",
+      form: "Verb phrase — verb + possessive noun + noun",
+      example: "Let me play devil's advocate: what if customers actually prefer the old design?", video: "" },
+
+    { answer: "move the goalposts", accept: ["move the goal posts", "moving the goalposts", "moved the goalposts"], register: "casual",
+      meaning: "to unfairly change the rules or requirements while something is already in progress",
+      form: "Verb phrase — verb + the + plural noun",
+      example: "Every time we hit the target, management moves the goalposts.", video: "" },
+
+    { answer: "hard launch", accept: ["a hard launch", "hard launched"], register: "modern slang",
+      meaning: "to reveal a new relationship publicly and unmistakably on social media (the opposite of a 'soft launch')",
+      form: "Noun phrase or verb — adjective + noun",
+      example: "After months of mysterious photos, she finally hard launched her boyfriend on Instagram.", video: "" },
+
+    { answer: "put lipstick on a pig", accept: ["lipstick on a pig", "putting lipstick on a pig"], register: "casual",
+      meaning: "to make superficial changes to something bad so it looks better, without fixing the real problem",
+      form: "Verb phrase — verb + noun + prepositional phrase",
+      example: "A new logo won't help. You're putting lipstick on a pig.", video: "" },
+
+    { answer: "nothingburger", accept: ["a nothingburger", "nothing burger"], register: "modern slang",
+      meaning: "something that was hyped up as important but turns out to have no substance (common in news and politics)",
+      form: "Single word — noun (a compound of nothing + burger)",
+      example: "The leaked report everyone panicked about was a total nothingburger.", video: "" },
+
+    { answer: "once in a blue moon", accept: [], register: "casual",
+      meaning: "very rarely",
+      form: "Adverbial phrase — adverb + prepositional phrase",
+      example: "We only see my cousins once in a blue moon.", video: "" },
+
+    { answer: "the whole nine yards", accept: ["whole nine yards"], register: "casual",
+      meaning: "everything; the full amount or extent of something",
+      form: "Noun phrase — the + adjective + number + plural noun",
+      example: "They did the wedding properly: live band, fireworks, the whole nine yards.", video: "" },
+
+    { answer: "circle back", accept: ["circle back on something", "circle back to something"], register: "casual",
+      meaning: "to return to a topic or person later (office language)",
+      form: "Phrasal verb — verb + adverb (often 'circle back on/to something')",
+      example: "Let's circle back on pricing after we hear from legal.", video: "" },
+
+    { answer: "glow up", accept: ["glow-up", "glowup", "a glow up"], register: "modern slang",
+      meaning: "a dramatic improvement in someone's appearance, confidence, or life, usually over time",
+      form: "Noun phrase or phrasal verb — verb + adverb",
+      example: "Have you seen Dev lately? Massive glow up since high school.", video: "" }
+  ];
+
+  /* =====================================================================
+     GAME CODE — nothing below needs editing to add puzzles
+     ===================================================================== */
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY_STATE = 'c2e:state', KEY_STATS = 'c2e:stats', KEY_SEEN = 'c2e:seenHelp';
+
+  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+  // ---- which puzzle is today's?
+  function dayNumberFor(d) {
+    var parts = START_DATE.split('-').map(Number);
+    var start = Date.UTC(parts[0], parts[1] - 1, parts[2]);
+    var today = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((today - start) / 86400000);
+  }
+  var params = new URLSearchParams(location.search);
+  var practice = false, day;
+  if (params.has('p')) {                       // ?p=12  → preview puzzle #12 (not saved)
+    var n = parseInt(params.get('p'), 10);
+    if (n >= 1) { day = n - 1; practice = true; }
+  } else if (params.has('date')) {             // ?date=2026-10-01 → preview that day's puzzle
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(params.get('date'));
+    if (m) { day = Math.max(0, dayNumberFor(new Date(+m[1], +m[2] - 1, +m[3]))); practice = true; }
+  }
+  if (day === undefined) day = Math.max(0, dayNumberFor(new Date()));
+  var puzzle = PUZZLES[day % PUZZLES.length];
+  var puzzleNo = day + 1;
+
+  // ---- text normalisation (lower-case, no punctuation, hyphens → spaces)
+  function norm(s) {
+    return String(s).toLowerCase()
+      .replace(/[’‘`]/g, "'").replace(/'/g, '')
+      .replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+  var answerNorm = norm(puzzle.answer);
+  var answerWords = answerNorm.split(' ');
+  var accepted = {};
+  accepted[answerNorm] = true;
+  (puzzle.accept || []).forEach(function (a) { accepted[norm(a)] = true; });
+
+  function dropLeadingTo(n) {                  // "to bite the bullet" counts as "bite the bullet"
+    if (answerNorm.indexOf('to ') !== 0 && n.indexOf('to ') === 0) return n.slice(3);
+    return n;
+  }
+  function isCorrect(g) { var n = norm(g); return !!(accepted[n] || accepted[dropLeadingTo(n)]); }
+  function guessWords(g) { return dropLeadingTo(norm(g)).split(' ').filter(Boolean); }
+
+  // Wordle-style word evaluation: g = right place, y = elsewhere, x = absent
+  function evaluate(gw, aw) {
+    var res = gw.map(function () { return 'x'; });
+    var left = aw.slice();
+    gw.forEach(function (w, i) { if (aw[i] === w) { res[i] = 'g'; left[i] = null; } });
+    gw.forEach(function (w, i) {
+      if (res[i] === 'g') return;
+      var j = left.indexOf(w);
+      if (j > -1) { res[i] = 'y'; left[j] = null; }
+    });
+    return res;
+  }
+
+  // ---- state
+  var state = { day: day, guesses: [], status: 'playing' };
+  if (!practice) {
+    var saved = load(KEY_STATE, null);
+    if (saved && saved.day === day && Array.isArray(saved.guesses)) state = saved;
+  }
+  var stats = load(KEY_STATS, {});
+  stats.played = stats.played || 0; stats.won = stats.won || 0; stats.streak = stats.streak || 0;
+  stats.maxStreak = stats.maxStreak || 0; stats.dist = stats.dist || [0, 0, 0, 0];
+  if (typeof stats.lastWinDay !== 'number') stats.lastWinDay = null;
+
+  function persist() { if (!practice) save(KEY_STATE, state); }
+  function wrongCount() { return state.guesses.filter(function (g) { return !isCorrect(g); }).length; }
+  function hintsUnlocked() { return Math.min(wrongCount(), 3) + 1; }
+
+  // ---- links
+  function watchUrl() {
+    if (puzzle.video) return puzzle.video;
+    return 'https://youglish.com/pronounce/' + encodeURIComponent(puzzle.answer) + '/english/us';
+  }
+  function yarnUrl() { return 'https://getyarn.io/yarn-find?text=' + encodeURIComponent(puzzle.answer); }
+
+  // ---- rendering helpers
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function vowelHtml(answer) {
+    return '<div class="vowels">' + answer.split(/\s+/).map(function (w) {
+      return '<span class="vw">' + Array.prototype.map.call(w, function (ch) {
+        var l = ch.toLowerCase();
+        if (/[aeiou]/.test(l)) return '<span class="vb v">' + ch.toUpperCase() + '</span>';
+        if (/[a-z0-9]/.test(l)) return '<span class="vb"></span>';
+        return '<span class="vp">' + esc(ch) + '</span>';
+      }).join('') + '</span>';
+    }).join('') + '</div>';
+  }
+  var lastUnlocked = 1;
+  function renderHints() {
+    var unlocked = hintsUnlocked();
+    var n = answerWords.length;
+    $('hintBody1').textContent = n === 1 ? '1 word' : n + ' words';
+    var bodies = {
+      2: esc(puzzle.meaning) + '<span class="chip">' + esc(puzzle.register) + '</span>',
+      3: esc(puzzle.form),
+      4: vowelHtml(puzzle.answer)
+    };
+    for (var i = 2; i <= 4; i++) {
+      var el = $('hint' + i), body = $('hintBody' + i);
+      if (i <= unlocked) {
+        el.classList.remove('locked');
+        if (i > lastUnlocked) el.classList.add('fresh'); else el.classList.remove('fresh');
+        body.innerHTML = bodies[i];
+      } else {
+        el.classList.add('locked'); el.classList.remove('fresh');
+        body.textContent = 'Unlocks after a wrong guess';
+      }
+    }
+    lastUnlocked = unlocked;
+  }
+  var revealedRows = state.guesses.length;
+  function renderGrid() {
+    var html = '';
+    for (var r = 0; r < MAX_GUESSES; r++) {
+      var g = state.guesses[r];
+      if (g !== undefined) {
+        var gw = guessWords(g), ev = evaluate(gw, answerWords);
+        var fresh = r >= revealedRows ? ' reveal' : '';
+        html += '<div class="row">' + gw.map(function (w, i) {
+          return '<span class="tile ' + ev[i] + fresh + '">' + esc(w) + '</span>';
+        }).join('') + '</div>';
+      } else {
+        var cur = (state.status === 'playing' && r === state.guesses.length) ? ' current' : '';
+        html += '<div class="row' + cur + '">' + answerWords.map(function () { return '<span class="tile empty"></span>'; }).join('') + '</div>';
+      }
+    }
+    $('grid').innerHTML = html;
+    revealedRows = state.guesses.length;
+  }
+  function renderResult() {
+    var over = state.status !== 'playing';
+    $('entry').hidden = over;
+    $('result').hidden = !over;
+    if (!over) return;
+    var k = state.guesses.length;
+    $('verdict').textContent = state.status === 'won'
+      ? ['Got it in one', 'Got it in two', 'Got it in three', 'Got it on the last try'][k - 1]
+      : 'Not this time — the answer was';
+    $('answerText').textContent = puzzle.answer;
+    $('chipRegister').textContent = puzzle.register;
+    $('resMeaning').textContent = puzzle.meaning;
+    $('resExample').textContent = '“' + puzzle.example + '”';
+    $('resForm').textContent = puzzle.form;
+    $('linkWatch').href = watchUrl();
+    $('linkYarn').href = yarnUrl();
+    renderNextLine();
+  }
+  function renderNextLine() {
+    var el = $('nextLine');
+    if (practice) { el.innerHTML = 'Practice puzzle — <a class="textlink" href="' + esc(location.pathname) + '">play today’s</a>'; return; }
+    var now = new Date();
+    var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    var diff = Math.max(0, next - now);
+    if (diff === 0) { location.reload(); return; }
+    var h = Math.floor(diff / 3600000), mi = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
+    el.textContent = 'Next expression in ' + [h, mi, s].map(function (x) { return (x < 10 ? '0' : '') + x; }).join(':');
+  }
+  function renderDateline() {
+    if (practice) {
+      $('dateline').textContent = '#' + puzzleNo + ' · Practice';
+      $('practiceNote').hidden = false;
+      $('practiceNote').innerHTML = 'You’re previewing puzzle #' + puzzleNo + '. Results aren’t saved. <a href="' + esc(location.pathname) + '">Back to today’s puzzle</a>';
+    } else {
+      var d = new Date();
+      $('dateline').textContent = '#' + puzzleNo + ' · ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+  }
+  function render() { renderDateline(); renderHints(); renderGrid(); renderResult(); }
+
+  // ---- toast
+  var toastTimer;
+  function toast(msg, ms) {
+    var t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, ms || 1800);
+  }
+
+  // ---- finishing a game
+  function finish(won) {
+    if (practice) return;
+    stats.played += 1;
+    if (won) {
+      stats.won += 1;
+      stats.dist[state.guesses.length - 1] += 1;
+      stats.streak = (stats.lastWinDay === day - 1) ? stats.streak + 1 : 1;
+      stats.lastWinDay = day;
+      if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+    } else {
+      stats.streak = 0;
+    }
+    save(KEY_STATS, stats);
+  }
+
+  // ---- submitting a guess
+  $('entry').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (state.status !== 'playing') return;
+    var raw = $('guessInput').value.trim();
+    var n = norm(raw);
+    if (!n) { toast('Type your guess first'); return; }
+    if (state.guesses.some(function (g) { return norm(g) === n; })) { toast('You already tried that'); return; }
+    state.guesses.push(raw);
+    $('guessInput').value = '';
+    if (isCorrect(raw)) {
+      state.status = 'won'; finish(true);
+      toast(['Brilliant!', 'Impressive', 'Nicely done', 'Phew — just made it'][state.guesses.length - 1], 2200);
+    } else if (state.guesses.length >= MAX_GUESSES) {
+      state.status = 'lost'; finish(false);
+      toast('Out of guesses', 2200);
+    } else {
+      toast(['', '', 'Not it — here’s the meaning', 'Not it — here’s the form', 'Not it — here are the vowels'][hintsUnlocked()]);
+    }
+    persist(); render();
+    if (state.status === 'playing') $('guessInput').focus();
+  });
+
+  // ---- share
+  function shareText() {
+    var rows = state.guesses.map(function (g) {
+      return evaluate(guessWords(g), answerWords).map(function (r) { return { g: '🟩', y: '🟨', x: '⬜' }[r]; }).join('');
+    }).join('\n');
+    var score = state.status === 'won' ? state.guesses.length : 'X';
+    var url = /^https?:/.test(location.protocol) ? '\n' + location.origin + location.pathname : '';
+    return SITE_NAME + ' #' + puzzleNo + ' ' + score + '/' + MAX_GUESSES + '\n' + rows + url;
+  }
+  $('btnShare').addEventListener('click', function () {
+    var text = shareText();
+    function copy() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { toast('Copied to clipboard'); }, function () { toast('Couldn’t copy — take a screenshot instead'); });
+      } else { toast('Couldn’t copy — take a screenshot instead'); }
+    }
+    if (navigator.share) { navigator.share({ text: text }).catch(function (err) { if (err && err.name !== 'AbortError') copy(); }); }
+    else copy();
+  });
+
+  // ---- modals
+  function openModal(id) { $(id).hidden = false; }
+  function closeModal(id) { $(id).hidden = true; }
+  $('btnHelp').addEventListener('click', function () { openModal('modalHelp'); });
+  $('closeHelp').addEventListener('click', function () { closeModal('modalHelp'); save(KEY_SEEN, true); });
+  $('btnStats').addEventListener('click', function () { renderStats(); openModal('modalStats'); });
+  $('closeStats').addEventListener('click', function () { closeModal('modalStats'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (m) {
+    m.addEventListener('click', function (e) { if (e.target === m) { m.hidden = true; if (m.id === 'modalHelp') save(KEY_SEEN, true); } });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeModal('modalHelp'); closeModal('modalStats'); save(KEY_SEEN, true); }
+  });
+  function renderStats() {
+    $('stPlayed').textContent = stats.played;
+    $('stWin').textContent = stats.played ? Math.round(100 * stats.won / stats.played) : 0;
+    $('stStreak').textContent = stats.streak;
+    $('stMax').textContent = stats.maxStreak;
+    var max = Math.max.apply(null, stats.dist.concat([1]));
+    var hl = (!practice && state.status === 'won') ? state.guesses.length - 1 : -1;
+    $('dist').innerHTML = stats.dist.map(function (c, i) {
+      var w = c ? Math.max(8, Math.round(100 * c / max)) : 0;
+      return '<div class="bar"><em>' + (i + 1) + '</em><i class="' + (i === hl ? 'hl' : '') + '" style="width:' + (w ? w + '%' : 'auto') + '">' + c + '</i></div>';
+    }).join('');
+  }
+
+  // ---- go
+  render();
+  if (!practice && !load(KEY_SEEN, false)) openModal('modalHelp');
+  setInterval(function () { if (state.status !== 'playing') renderNextLine(); }, 1000);
+})();
+</script>
+</body>
+</html>
