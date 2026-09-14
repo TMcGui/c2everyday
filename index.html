@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>C2Everyday</title>
-<meta name="description" content="A daily idiom puzzle for advanced English learners. Four guesses, four hints, one expression a day.">
+<meta name="description" content="Five everyday American English expressions a day. You get the meaning — guess the expression, score up to 50.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;800&display=swap">
@@ -62,53 +62,77 @@
   .icon svg{width:22px; height:22px; display:block}
 
   /* ---------- game column ---------- */
-  .game{max-width:500px; margin:0 auto; padding-block:16px 48px; display:flex; flex-direction:column; gap:20px}
+  .game{max-width:500px; margin:0 auto; padding-block:16px 48px; display:flex; flex-direction:column; gap:18px}
   .dateline{margin:0; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
-  .note{
-    margin:0; padding:10px 12px; border-radius:6px; background:var(--surface); font-size:13px; color:var(--muted);
-  }
+  .note{margin:0; padding:10px 12px; border-radius:6px; background:var(--surface); font-size:13px; color:var(--muted)}
   .note a{color:var(--text)}
+
+  /* ---------- score strip: one cell per expression ---------- */
+  .strip{display:flex; align-items:center; gap:6px}
+  .cell{
+    flex:1; height:34px; border:2px solid var(--line); border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums;
+  }
+  .cell.current{border-color:var(--text); color:var(--text)}
+  .cell.hi{background:var(--green); border-color:var(--green); color:#fff}
+  .cell.mid{background:var(--yellow); border-color:var(--yellow); color:#fff}
+  .cell.zero{background:var(--grey); border-color:var(--grey); color:#fff}
+  .strip-total{margin-left:8px; min-width:64px; text-align:right; font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .strip-total small{font-weight:600; color:var(--muted); font-size:12px}
+
+  /* ---------- the meaning (always visible) ---------- */
+  .prompt{padding:14px 16px 12px; border-radius:8px; background:var(--surface)}
+  .prompt-label{margin:0 0 6px; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .prompt-lead{margin:0 0 2px; font-size:13px; color:var(--muted)}
+  .prompt-text{margin:0; font-size:19px; font-weight:600; line-height:1.35; text-wrap:balance}
 
   /* ---------- hints ---------- */
   .hints{border:1px solid var(--line); border-radius:8px; overflow:hidden}
-  .hint{display:grid; grid-template-columns:86px 1fr; gap:12px; padding:12px 14px; border-top:1px solid var(--line)}
+  .hint{display:grid; grid-template-columns:96px 1fr; gap:12px; padding:12px 14px; border-top:1px solid var(--line)}
   .hint:first-child{border-top:0}
-  .hint-label{
-    font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:3px;
-  }
+  .hint-label{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:3px; line-height:1.3}
   .hint-body{font-size:15px; line-height:1.45; min-width:0; overflow-wrap:anywhere}
   .hint.locked .hint-label{opacity:.55}
   .hint.locked .hint-body{color:var(--muted); font-style:italic}
   .hint.fresh .hint-body{animation:fadeIn .4s ease-out}
   .chip{
-    display:inline-block; vertical-align:middle; margin-left:8px; padding:1px 8px 2px;
+    display:inline-block; vertical-align:middle; padding:1px 8px 2px;
     border:1px solid var(--line-strong); border-radius:999px;
     font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);
   }
-  .vowels{display:flex; flex-wrap:wrap; gap:6px 16px; padding-top:2px}
-  .vw{display:inline-flex; gap:4px; align-items:flex-end}
-  .vb{
+  .blank{
+    display:inline-block; min-width:64px; border-bottom:2px solid var(--text); margin:0 2px; line-height:1;
+    transform:translateY(-3px);
+  }
+  .letters{display:flex; flex-wrap:wrap; gap:6px 16px; padding-top:2px}
+  .lw{display:inline-flex; gap:4px; align-items:flex-end}
+  .lb{
     width:20px; height:26px; border-bottom:2px solid var(--line-strong);
     display:inline-flex; align-items:center; justify-content:center;
     font-weight:800; font-size:16px; line-height:1;
   }
-  .vb.v{border-bottom-color:var(--text)}
-  .vp{font-weight:800; font-size:16px; line-height:26px}
+  .lb.on{border-bottom-color:var(--text)}
+  .lp{font-weight:800; font-size:16px; line-height:26px}
+  .letters-note{font-size:13px; color:var(--muted); margin:6px 0 0}
 
   /* ---------- guess grid ---------- */
   .grid{display:flex; flex-direction:column; gap:6px}
   .row{display:flex; flex-wrap:wrap; gap:6px}
   .tile{
-    height:46px; min-width:46px; padding:0 12px; border:2px solid var(--line); border-radius:3px;
+    height:44px; min-width:44px; padding:0 12px; border:2px solid var(--line); border-radius:3px;
     display:inline-flex; align-items:center; justify-content:center;
     font-weight:700; font-size:15px; letter-spacing:.02em; text-transform:uppercase; line-height:1;
   }
-  .tile.empty{min-width:72px; padding:0}
+  .tile.empty{min-width:68px; padding:0}
   .row.current .tile.empty{border-color:var(--line-strong)}
   .tile.g{background:var(--green); border-color:var(--green); color:var(--on-tile)}
   .tile.y{background:var(--yellow); border-color:var(--yellow); color:var(--on-tile)}
   .tile.x{background:var(--grey); border-color:var(--grey); color:var(--on-tile)}
   .tile.reveal{animation:pop .18s ease-out}
+  .row-pts{
+    align-self:center; margin-left:4px; font-size:12px; font-weight:600; color:var(--muted); font-variant-numeric:tabular-nums;
+  }
 
   /* ---------- entry ---------- */
   .entry{display:flex; gap:8px}
@@ -127,18 +151,39 @@
   .primary:hover{opacity:.9}
   .secondary:hover{background:var(--surface)}
 
-  /* ---------- result ---------- */
+  /* ---------- result (one expression) ---------- */
   .result{border-top:1px solid var(--line); padding-top:20px; display:flex; flex-direction:column; gap:10px}
   .verdict{margin:0; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .verdict b{color:var(--text)}
   .answer{margin:0; font-size:30px; font-weight:800; letter-spacing:-.02em; line-height:1.1; text-wrap:balance}
-  .answer .chip{margin-left:10px; vertical-align:middle; position:relative; top:-4px}
+  .answer .chip{margin:0 0 0 10px; vertical-align:middle; position:relative; top:-4px}
   .meaning{margin:0; font-size:16px}
   .example{margin:0; color:var(--muted); font-style:italic}
-  .formline{margin:0; font-size:13px; color:var(--muted)}
-  .formline b{font-weight:600; color:var(--text)}
+  .example b{color:var(--text); font-weight:700}
+  .goodtoknow{margin:0; font-size:14px; color:var(--muted)}
+  .goodtoknow b{font-weight:600; color:var(--text)}
   .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+  .actions .grow{flex:1}
   .textlink{color:var(--text); text-decoration:underline; text-underline-offset:3px; font-size:14px; width:fit-content}
   .next{margin:6px 0 0; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+  /* ---------- end-of-day summary ---------- */
+  .summary{display:flex; flex-direction:column; gap:14px}
+  .score{margin:0; font-size:56px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums}
+  .score small{font-size:22px; font-weight:600; color:var(--muted); letter-spacing:0}
+  .score-verdict{margin:0; font-size:16px}
+  .recap{border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .recap-row{display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:12px; padding:10px 12px; border-top:1px solid var(--line)}
+  .recap-row:first-child{border-top:0}
+  .pts{
+    height:30px; border-radius:4px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px; color:#fff; background:var(--green); font-variant-numeric:tabular-nums;
+  }
+  .pts.mid{background:var(--yellow)}
+  .pts.zero{background:var(--grey)}
+  .recap-name{font-weight:600; min-width:0}
+  .recap-name small{display:block; font-weight:400; color:var(--muted); font-size:13px; line-height:1.35}
+  .recap-row a{font-size:13px; font-weight:600; color:var(--text); text-decoration:underline; text-underline-offset:3px; white-space:nowrap}
 
   /* ---------- toast ---------- */
   .toast{
@@ -165,19 +210,24 @@
   .legend .tile{height:34px; min-width:34px; padding:0 8px; font-size:12px}
   .steps{margin:0 0 6px; padding-left:18px; font-size:15px}
   .steps li{margin-bottom:4px}
+  .pointsline{display:flex; gap:6px; margin:4px 0 12px}
+  .pointsline span{
+    flex:1; text-align:center; padding:6px 0; border-radius:4px; background:var(--surface);
+    font-size:13px; font-weight:700; font-variant-numeric:tabular-nums;
+  }
+  .pointsline span small{display:block; font-weight:500; color:var(--muted); font-size:11px}
   .statrow{display:flex; gap:8px; margin-bottom:18px}
   .stat{flex:1; text-align:center}
   .stat b{display:block; font-size:28px; font-weight:800; line-height:1.1; font-variant-numeric:tabular-nums}
   .stat span{font-size:11px; color:var(--muted); line-height:1.2; display:block; margin-top:2px}
   .dist{display:flex; flex-direction:column; gap:5px}
   .bar{display:flex; align-items:center; gap:8px; font-size:13px; font-variant-numeric:tabular-nums}
-  .bar em{width:12px; font-style:normal; font-weight:600}
+  .bar em{width:52px; font-style:normal; font-weight:600; white-space:nowrap}
   .bar i{
     display:block; height:20px; min-width:22px; padding:0 6px; border-radius:2px;
     background:var(--grey); color:#fff; font-style:normal; font-weight:700; font-size:12px; line-height:20px; text-align:right;
   }
   .bar i.hl{background:var(--green)}
-  .empty-stats{color:var(--muted); font-size:14px}
 
   @keyframes pop{0%{transform:scale(.92)} 60%{transform:scale(1.06)} 100%{transform:scale(1)}}
   @keyframes fadeIn{from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none}}
@@ -188,6 +238,8 @@
   @media (max-width:400px){
     .hint{grid-template-columns:1fr; gap:4px}
     .answer{font-size:26px}
+    .prompt-text{font-size:18px}
+    .score{font-size:48px}
   }
 </style>
 </head>
@@ -207,10 +259,18 @@
   <p class="dateline" id="dateline"></p>
   <p class="note" id="practiceNote" hidden></p>
 
-  <section class="hints" aria-label="Hints">
-    <div class="hint" id="hint1"><div class="hint-label">Hint 1 · Words</div><div class="hint-body" id="hintBody1"></div></div>
-    <div class="hint locked" id="hint2"><div class="hint-label">Hint 2 · Meaning</div><div class="hint-body" id="hintBody2">Unlocks after a wrong guess</div></div>
-    <div class="hint locked" id="hint3"><div class="hint-label">Hint 3 · Form</div><div class="hint-body" id="hintBody3">Unlocks after a wrong guess</div></div>
+  <div class="strip" id="strip" aria-label="Today's score"></div>
+
+  <section class="prompt" id="prompt" aria-label="The meaning">
+    <p class="prompt-label" id="promptLabel"></p>
+    <p class="prompt-lead">What do Americans say when they mean…</p>
+    <p class="prompt-text" id="promptText"></p>
+  </section>
+
+  <section class="hints" id="hints" aria-label="Hints">
+    <div class="hint locked" id="hint1"><div class="hint-label">Hint 1 · Where you'd hear it</div><div class="hint-body" id="hintBody1">Unlocks after a wrong guess</div></div>
+    <div class="hint locked" id="hint2"><div class="hint-label">Hint 2 · In a sentence</div><div class="hint-body" id="hintBody2">Unlocks after a wrong guess</div></div>
+    <div class="hint locked" id="hint3"><div class="hint-label">Hint 3 · First letters</div><div class="hint-body" id="hintBody3">Unlocks after a wrong guess</div></div>
     <div class="hint locked" id="hint4"><div class="hint-label">Hint 4 · Vowels</div><div class="hint-body" id="hintBody4">Unlocks after a wrong guess</div></div>
   </section>
 
@@ -226,15 +286,26 @@
     <p class="answer"><span id="answerText"></span><span class="chip" id="chipRegister"></span></p>
     <p class="meaning" id="resMeaning"></p>
     <p class="example" id="resExample"></p>
-    <p class="formline">Form: <b id="resForm"></b></p>
+    <p class="goodtoknow" id="resNote" hidden></p>
     <div class="actions">
       <a class="primary" id="linkWatch" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         Watch it in use
       </a>
-      <button class="secondary" id="btnShare" type="button">Share</button>
+      <button class="secondary grow" id="btnNext" type="button">Next expression →</button>
     </div>
     <a class="textlink" id="linkYarn" target="_blank" rel="noopener">Find it in movie &amp; TV clips</a>
+  </section>
+
+  <section class="summary" id="summary" hidden>
+    <p class="verdict">Today's score</p>
+    <p class="score"><span id="scoreNum">0</span> <small>/ 50</small></p>
+    <p class="score-verdict" id="scoreVerdict"></p>
+    <div class="recap" id="recap"></div>
+    <div class="actions">
+      <button class="secondary" id="btnShare" type="button">Share</button>
+      <button class="secondary" id="btnStats2" type="button">Statistics</button>
+    </div>
     <p class="next" id="nextLine"></p>
   </section>
 </main>
@@ -245,20 +316,24 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <button class="icon close" id="closeHelp" type="button" aria-label="Close">✕</button>
     <h2 id="helpTitle">How to play</h2>
-    <p>Guess the idiom or expression in 4 tries. Every wrong guess unlocks the next hint:</p>
+    <p>Five expressions a day. For each one you get the meaning — guess the expression Americans actually say. The fewer guesses, the more points:</p>
+    <div class="pointsline">
+      <span>10<small>1st guess</small></span><span>8<small>2nd</small></span><span>6<small>3rd</small></span><span>4<small>4th</small></span><span>2<small>5th</small></span>
+    </div>
+    <p>A perfect day is 50. Every wrong guess unlocks the next hint:</p>
     <ol class="steps">
-      <li>How many words it has</li>
-      <li>What it means, and whether it's casual, formal, or modern slang</li>
-      <li>Its form (verb phrase, noun phrase, single word…)</li>
+      <li>Where you'd hear it</li>
+      <li>A real sentence with the expression blanked out</li>
+      <li>The first letter of each word</li>
       <li>All of its vowels</li>
     </ol>
     <p>The tiles show which words you got right:</p>
     <div class="legend">
-      <div><span class="tile g">bite</span> Right word, right place</div>
-      <div><span class="tile y">the</span> In the expression, different place</div>
-      <div><span class="tile x">dust</span> Not in the expression</div>
+      <div><span class="tile g">my</span> Right word, right place</div>
+      <div><span class="tile y">bad</span> In the expression, different place</div>
+      <div><span class="tile x">fault</span> Not in the expression</div>
     </div>
-    <p>Win or lose, you get a clip of real people using it. A new expression arrives every day at midnight.</p>
+    <p>After each one you get a clip of real people saying it. Five new expressions arrive every day at midnight.</p>
   </div>
 </div>
 
@@ -267,12 +342,12 @@
     <button class="icon close" id="closeStats" type="button" aria-label="Close">✕</button>
     <h2 id="statsTitle">Statistics</h2>
     <div class="statrow">
-      <div class="stat"><b id="stPlayed">0</b><span>Played</span></div>
-      <div class="stat"><b id="stWin">0</b><span>Win %</span></div>
-      <div class="stat"><b id="stStreak">0</b><span>Current streak</span></div>
-      <div class="stat"><b id="stMax">0</b><span>Max streak</span></div>
+      <div class="stat"><b id="stPlayed">0</b><span>Days played</span></div>
+      <div class="stat"><b id="stAvg">0</b><span>Average score</span></div>
+      <div class="stat"><b id="stBest">0</b><span>Best day</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>Day streak</span></div>
     </div>
-    <h2>Guess distribution</h2>
+    <h2>Guessed it on the…</h2>
     <div class="dist" id="dist"></div>
   </div>
 </div>
@@ -285,237 +360,643 @@
      SETTINGS
      ===================================================================== */
   var SITE_NAME   = 'C2Everyday';
-  var START_DATE  = '2026-09-13';   // Puzzle #1 appears on this date (local time)
-  var MAX_GUESSES = 4;
+  var START_DATE  = '2026-09-13';        // Day #1 (local time)
+  var ROUNDS      = 5;                   // expressions per day
+  var MAX_GUESSES = 5;                   // guesses per expression
+  var POINTS      = [10, 8, 6, 4, 2];    // points for a correct 1st, 2nd, 3rd, 4th, 5th guess
 
   /* =====================================================================
      PUZZLE BANK
-     One entry per day, in order. Puzzle #1 is the first entry, #2 the
-     second, and so on. When the list runs out it starts again from #1.
+     Five entries are used per day, in order: day #1 uses entries 1–5,
+     day #2 uses 6–10, and so on. When the list runs out it starts again
+     from the top, so add new entries at the END.
 
      Fields:
        answer   – the expression, written the way it should be shown
-       accept   – (optional) other spellings/forms that count as correct
-       register – "casual", "formal", or "modern slang"
-       meaning  – plain-English definition (hint 2)
-       form     – grammatical form (hint 3)
-       example  – one natural sentence, shown after the game
+       accept   – (optional) other spellings/forms that also count
+       register – short tag shown on the result card: casual, slang,
+                  work, or everyday
+       where    – Hint 1: where you'd hear it (register + situation)
+       meaning  – shown from the start
+       example  – Hint 2 and the result card. Put the expression inside
+                  {curly braces}; that part is blanked out for the hint.
+       note     – (optional) "Good to know" line on the result card:
+                  origin, a warning, a related phrase
        video    – (optional) a specific YouTube link. Leave "" to send
-                  players to YouGlish, which finds YouTube clips of the
-                  expression automatically.
+                  players to YouGlish, which finds clips automatically.
      ===================================================================== */
   var PUZZLES = [
-    { answer: "bite the bullet", accept: ["bit the bullet"], register: "casual",
-      meaning: "to force yourself to do something unpleasant or difficult that you've been putting off",
-      form: "Verb phrase — verb + the + noun (the verb changes: bit, bitten)",
-      example: "I finally bit the bullet and booked the dentist.", video: "" },
+    { answer: "my bad", accept: ["thats my bad", "its my bad"], register: "casual",
+      where: "Casual · with friends or coworkers, right after a small mistake",
+      meaning: "sorry, that was my mistake — said quickly and lightly",
+      example: "Oh, {my bad} — I thought you said Tuesday.",
+      note: "Only for small slip-ups. For anything serious, say a real \"I'm sorry.\"", video: "" },
 
-    { answer: "notwithstanding", accept: [], register: "formal",
-      meaning: "despite; in spite of — common in contracts, reports, and careful writing",
-      form: "Single word — preposition (it can also come after the noun it refers to)",
-      example: "Notwithstanding the delays, the project came in under budget.", video: "" },
-
-    { answer: "touch grass", accept: ["go touch grass"], register: "modern slang",
-      meaning: "to log off and go outside; a way of telling someone they've spent too long online and lost perspective",
-      form: "Verb phrase — verb + noun (usually as a command)",
-      example: "You've been arguing with strangers for three hours. Touch grass.", video: "" },
-
-    { answer: "the elephant in the room", accept: ["elephant in the room", "an elephant in the room"], register: "casual",
-      meaning: "an obvious problem that everyone is aware of but nobody wants to mention",
-      form: "Noun phrase — the + noun + prepositional phrase",
-      example: "Nobody mentioned the layoffs. It was the elephant in the room all meeting.", video: "" },
-
-    { answer: "in light of", accept: [], register: "formal",
-      meaning: "considering; because of — used when new information or a changed situation affects a decision",
-      form: "Prepositional phrase — preposition + noun + preposition (followed by a noun)",
-      example: "In light of the new evidence, the board reversed its decision.", video: "" },
-
-    { answer: "rent free", accept: ["rent-free", "living rent free", "in your head rent free", "living in your head rent free"], register: "modern slang",
-      meaning: "occupying someone's mind constantly without them wanting it to — usually 'living in your head rent free'",
-      form: "Adverbial phrase — noun + adjective (used after 'live in someone's head')",
-      example: "She blocked him months ago, but he's still living in her head rent free.", video: "" },
-
-    { answer: "Monday morning quarterback", accept: ["a monday morning quarterback", "monday-morning quarterback"], register: "casual",
-      meaning: "a person who criticizes decisions after the result is already known, when it's easy to say what should have been done (from American football)",
-      form: "Noun phrase — day + noun + noun (used as a compound noun)",
-      example: "Everyone's a Monday morning quarterback after a bad trade.", video: "" },
-
-    { answer: "par for the course", accept: [], register: "casual",
-      meaning: "what you'd expect in a given situation, especially something disappointing; normal (from golf)",
-      form: "Fixed expression — noun + prepositional phrase (used after 'be')",
-      example: "Delays at that airport are par for the course.", video: "" },
-
-    { answer: "err on the side of caution", accept: ["erred on the side of caution", "erring on the side of caution"], register: "formal",
-      meaning: "to choose the safer, more careful option when you're not sure",
-      form: "Verb phrase — verb + prepositional phrase + of + noun",
-      example: "We erred on the side of caution and cancelled the outdoor event.", video: "" },
-
-    { answer: "the ick", accept: ["ick", "get the ick", "got the ick", "give the ick"], register: "modern slang",
-      meaning: "a sudden feeling of disgust toward someone you were attracted to, usually triggered by something small",
-      form: "Noun phrase — the + noun (used with 'get' or 'give')",
-      example: "He clapped when the plane landed and she got the ick instantly.", video: "" },
-
-    { answer: "read the room", accept: [], register: "casual",
-      meaning: "to notice the mood and feelings of the people around you and adjust what you say or do",
-      form: "Verb phrase — verb + the + noun (often as a command or a criticism)",
-      example: "He started telling jokes at the memorial. Read the room, man.", video: "" },
-
-    { answer: "by and large", accept: [], register: "formal",
-      meaning: "generally speaking; on the whole",
-      form: "Adverbial phrase — preposition + and + adjective (usually at the start of a sentence)",
-      example: "By and large, the feedback was positive.", video: "" },
-
-    { answer: "throw shade", accept: ["throwing shade", "throw shade at someone", "threw shade"], register: "modern slang",
-      meaning: "to subtly insult or show contempt for someone, often without naming them",
-      form: "Verb phrase — verb + noun (often 'throw shade at someone')",
-      example: "Her acceptance speech was basically throwing shade at her ex-manager.", video: "" },
-
-    { answer: "kick the can down the road", accept: ["kicking the can down the road", "kicked the can down the road"], register: "casual",
-      meaning: "to postpone dealing with a problem, leaving it for someone else later (common in political and business news)",
-      form: "Verb phrase — verb + the + noun + prepositional phrase",
-      example: "Congress kicked the can down the road again instead of fixing the budget.", video: "" },
-
-    { answer: "to that end", accept: [], register: "formal",
-      meaning: "for that purpose; in order to achieve what was just mentioned",
-      form: "Prepositional phrase — preposition + determiner + noun (links two sentences)",
-      example: "We want faster response times. To that end, we're hiring two more support staff.", video: "" },
-
-    { answer: "main character energy", accept: [], register: "modern slang",
-      meaning: "the confident attitude of someone who acts as if they're the star of the story — can be admiring or mocking",
-      form: "Noun phrase — adjective + noun + noun",
-      example: "She walked into the party like she owned it. Pure main character energy.", video: "" },
-
-    { answer: "hit the ground running", accept: [], register: "casual",
-      meaning: "to start a new job or project with energy and be effective immediately",
-      form: "Verb phrase — verb + the + noun + -ing verb",
-      example: "We need someone who can hit the ground running in September.", video: "" },
-
-    { answer: "a moot point", accept: ["moot point", "moot"], register: "formal",
-      meaning: "a question that no longer matters because circumstances have changed; not worth arguing about",
-      form: "Noun phrase — article + adjective + noun (used after 'be')",
-      example: "Whether we should have hired more staff is a moot point now that the contract's cancelled.", video: "" },
-
-    { answer: "ghost", accept: ["ghosted", "ghosting", "ghost someone"], register: "modern slang",
-      meaning: "to suddenly stop replying to someone's messages and disappear from their life with no explanation",
-      form: "Single word — regular verb (ghosted, ghosting)",
-      example: "We had three great dates and then he just ghosted me.", video: "" },
-
-    { answer: "throw a Hail Mary", accept: ["hail mary", "a hail mary", "threw a hail mary"], register: "casual",
-      meaning: "to make a desperate last attempt that has little chance of success (from a long, hopeful pass in American football)",
-      form: "Verb phrase — verb + a + proper noun used as a noun",
-      example: "With ten seconds left, they threw a Hail Mary and somehow won.", video: "" },
-
-    { answer: "at your earliest convenience", accept: ["at his earliest convenience", "at her earliest convenience", "at their earliest convenience", "earliest convenience"], register: "formal",
-      meaning: "as soon as you reasonably can — a polite way to say 'soon' in emails",
-      form: "Prepositional phrase — preposition + possessive + superlative adjective + noun",
-      example: "Please sign and return the form at your earliest convenience.", video: "" },
-
-    { answer: "side quest", accept: ["a side quest"], register: "modern slang",
-      meaning: "an unplanned detour or small task that pulls you away from your main goal (from video games)",
-      form: "Noun phrase — noun + noun",
-      example: "I went out for milk and ended up on a two-hour side quest at the hardware store.", video: "" },
-
-    { answer: "on the fence", accept: ["sitting on the fence", "sit on the fence"], register: "casual",
-      meaning: "undecided; unable to choose between two options",
-      form: "Prepositional phrase — preposition + the + noun (used after 'be' or 'sit')",
-      example: "I'm still on the fence about moving to Denver.", video: "" },
-
-    { answer: "for all intents and purposes", accept: [], register: "formal",
-      meaning: "in every practical sense; effectively, even if not officially",
-      form: "Adverbial phrase — preposition + all + noun + and + noun",
-      example: "The old policy is, for all intents and purposes, dead.", video: "" },
-
-    { answer: "gatekeep", accept: ["gatekeeping", "gate keep", "gatekeeping something"], register: "modern slang",
-      meaning: "to control who gets access to something — a hobby, a place, information — and keep it exclusive",
-      form: "Single word — verb (gatekeeping, gatekept)",
-      example: "Stop gatekeeping the recipe and just tell me what's in the sauce.", video: "" },
-
-    { answer: "spill the beans", accept: ["spilled the beans", "spilt the beans"], register: "casual",
-      meaning: "to reveal a secret, usually by accident or because you couldn't resist",
-      form: "Verb phrase — verb + the + plural noun",
-      example: "Who spilled the beans about the surprise party?", video: "" },
-
-    { answer: "the lesser of two evils", accept: ["lesser of two evils"], register: "formal",
-      meaning: "the less harmful of two bad options",
-      form: "Noun phrase — the + comparative adjective + of + number + noun",
-      example: "Neither candidate excited her, so she voted for the lesser of two evils.", video: "" },
-
-    { answer: "no cap", accept: [], register: "modern slang",
+    { answer: "no cap", accept: [], register: "slang",
+      where: "Slang · texting, TikTok, joking with friends",
       meaning: "no lie; seriously; I'm not exaggerating",
-      form: "Fixed expression — no + noun (at the start or end of a statement)",
-      example: "That was the best taco I've ever had, no cap.", video: "" },
+      example: "That was the best burger I've ever had, {no cap}.",
+      note: "\"Cap\" means a lie, so \"capping\" means lying.", video: "" },
 
-    { answer: "step up to the plate", accept: ["stepped up to the plate", "stepping up to the plate"], register: "casual",
-      meaning: "to take responsibility and act when something needs doing (from baseball)",
-      form: "Verb phrase — phrasal verb + prepositional phrase",
-      example: "Nobody wanted to lead the project, so Maria stepped up to the plate.", video: "" },
+    { answer: "potluck", accept: ["a potluck", "pot luck", "potluck dinner"], register: "everyday",
+      where: "Everyday · office parties, neighbors, church and school events",
+      meaning: "a shared meal where every guest brings a dish for everyone",
+      example: "It's a {potluck}, so bring something — chili, a salad, anything.",
+      note: "New to one? Ask the host what's still needed. Store-bought is totally fine.", video: "" },
 
-    { answer: "in the weeds", accept: ["get in the weeds", "get into the weeds", "into the weeds"], register: "casual",
-      meaning: "lost in too many small details — or, in restaurants, overwhelmed with work",
-      form: "Prepositional phrase — preposition + the + plural noun (used after 'be' or 'get')",
-      example: "Let's not get in the weeds on font choices — the deadline is Friday.", video: "" },
+    { answer: "heads up", accept: ["a heads up", "heads-up", "give you a heads up"], register: "work",
+      where: "Work · emails, Slack messages, a quick word in the hallway",
+      meaning: "a quick warning or advance notice about something coming",
+      example: "Just a {heads up}: the client moved the meeting to 9.",
+      note: "Also shouted as a warning: \"Heads up!\" means duck, something's flying at you.", video: "" },
 
-    { answer: "delulu", accept: ["delusional"], register: "modern slang",
-      meaning: "delusional in a playful, self-aware way — believing something unrealistic because it's more fun",
-      form: "Single word — adjective (a shortened, doubled form of a longer word)",
-      example: "I know he's a celebrity, but I'm delulu enough to think he'll reply.", video: "" },
+    { answer: "hang out", accept: ["hang out with", "hanging out", "hangout"], register: "casual",
+      where: "Casual · making plans with friends",
+      meaning: "to spend relaxed time with people, with no particular plan",
+      example: "Want to {hang out} this weekend? Nothing fancy, maybe a movie.",
+      note: "", video: "" },
 
-    { answer: "play devil's advocate", accept: ["devils advocate", "playing devils advocate", "the devils advocate"], register: "casual",
-      meaning: "to argue the opposite side of an idea in order to test it, even if you don't believe it yourself",
-      form: "Verb phrase — verb + possessive noun + noun",
-      example: "Let me play devil's advocate: what if customers actually prefer the old design?", video: "" },
+    { answer: "bet", accept: [], register: "slang",
+      where: "Slang · replying to a plan by text",
+      meaning: "okay; sounds good; I'm in — a one-word way to agree",
+      example: "\"Pizza at 7?\" \"{Bet}.\"",
+      note: "Said flat and confident. Nothing to do with gambling here.", video: "" },
 
-    { answer: "move the goalposts", accept: ["move the goal posts", "moving the goalposts", "moved the goalposts"], register: "casual",
-      meaning: "to unfairly change the rules or requirements while something is already in progress",
-      form: "Verb phrase — verb + the + plural noun",
-      example: "Every time we hit the target, management moves the goalposts.", video: "" },
+    { answer: "happy hour", accept: ["a happy hour"], register: "everyday",
+      where: "Everyday · after work, usually 4–7 pm",
+      meaning: "the late-afternoon window when bars and restaurants sell cheaper drinks and snacks",
+      example: "A few of us are going to {happy hour} after work — half-price margaritas.",
+      note: "", video: "" },
 
-    { answer: "hard launch", accept: ["a hard launch", "hard launched"], register: "modern slang",
-      meaning: "to reveal a new relationship publicly and unmistakably on social media (the opposite of a 'soft launch')",
-      form: "Noun phrase or verb — adjective + noun",
-      example: "After months of mysterious photos, she finally hard launched her boyfriend on Instagram.", video: "" },
+    { answer: "on the same page", accept: ["were on the same page", "get on the same page", "be on the same page"], register: "work",
+      where: "Work · meetings, project check-ins",
+      meaning: "having the same understanding of a plan or situation",
+      example: "Before we start, let's make sure we're all {on the same page} about the deadline.",
+      note: "", video: "" },
 
-    { answer: "put lipstick on a pig", accept: ["lipstick on a pig", "putting lipstick on a pig"], register: "casual",
-      meaning: "to make superficial changes to something bad so it looks better, without fixing the real problem",
-      form: "Verb phrase — verb + noun + prepositional phrase",
-      example: "A new logo won't help. You're putting lipstick on a pig.", video: "" },
+    { answer: "rain check", accept: ["take a rain check", "a rain check", "raincheck"], register: "casual",
+      where: "Casual · turning down plans without hurting feelings",
+      meaning: "a polite way to say no to an invitation while promising to do it another time",
+      example: "I'm wiped out tonight — can I take a {rain check} on dinner?",
+      note: "From baseball: a ticket you could use for a later game if rain cancelled the first one.", video: "" },
 
-    { answer: "nothingburger", accept: ["a nothingburger", "nothing burger"], register: "modern slang",
-      meaning: "something that was hyped up as important but turns out to have no substance (common in news and politics)",
-      form: "Single word — noun (a compound of nothing + burger)",
-      example: "The leaked report everyone panicked about was a total nothingburger.", video: "" },
+    { answer: "sus", accept: ["suspicious"], register: "slang",
+      where: "Slang · gaming, texting, joking with friends",
+      meaning: "suspicious; seeming dishonest or not quite right",
+      example: "He said he was \"working late\" on a Saturday? That's {sus}.",
+      note: "Short for \"suspicious.\" Went viral through the game Among Us.", video: "" },
 
-    { answer: "once in a blue moon", accept: [], register: "casual",
-      meaning: "very rarely",
-      form: "Adverbial phrase — adverb + prepositional phrase",
-      example: "We only see my cousins once in a blue moon.", video: "" },
+    { answer: "road trip", accept: ["a road trip", "roadtrip"], register: "everyday",
+      where: "Everyday · vacations, college life, long weekends",
+      meaning: "a long journey by car for fun, often with friends, stopping along the way",
+      example: "We're doing a {road trip} down the California coast — three days, no plans.",
+      note: "", video: "" },
 
-    { answer: "the whole nine yards", accept: ["whole nine yards"], register: "casual",
-      meaning: "everything; the full amount or extent of something",
-      form: "Noun phrase — the + adjective + number + plural noun",
-      example: "They did the wedding properly: live band, fireworks, the whole nine yards.", video: "" },
+    { answer: "circle back", accept: ["circle back on", "circle back to"], register: "work",
+      where: "Work · meetings and emails",
+      meaning: "to return to a topic or person later",
+      example: "Let's {circle back} on pricing after legal takes a look.",
+      note: "One of the most-mocked bits of office English — and everyone still says it.", video: "" },
 
-    { answer: "circle back", accept: ["circle back on something", "circle back to something"], register: "casual",
-      meaning: "to return to a topic or person later (office language)",
-      form: "Phrasal verb — verb + adverb (often 'circle back on/to something')",
-      example: "Let's circle back on pricing after we hear from legal.", video: "" },
+    { answer: "I'm down", accept: ["im down", "i am down", "down", "down for it", "im down for it"], register: "casual",
+      where: "Casual · replying to an invitation",
+      meaning: "yes, I'd like to do that; count me in",
+      example: "\"Tacos after class?\" \"{I'm down}.\"",
+      note: "\"Down\" here means willing, not sad. \"I'm down for anything\" means I'm easygoing.", video: "" },
 
-    { answer: "glow up", accept: ["glow-up", "glowup", "a glow up"], register: "modern slang",
-      meaning: "a dramatic improvement in someone's appearance, confidence, or life, usually over time",
-      form: "Noun phrase or phrasal verb — verb + adverb",
-      example: "Have you seen Dev lately? Massive glow up since high school.", video: "" }
+    { answer: "lowkey", accept: ["low key", "low-key"], register: "slang",
+      where: "Slang · admitting a feeling or opinion quietly",
+      meaning: "somewhat; secretly; without making a big deal of it",
+      example: "I {lowkey} want to skip the party and just sleep.",
+      note: "\"Highkey\" is the opposite: openly, very much.", video: "" },
+
+    { answer: "RSVP", accept: ["r.s.v.p.", "r s v p"], register: "everyday",
+      where: "Everyday · weddings, parties, formal invitations",
+      meaning: "to reply to an invitation saying whether or not you'll come",
+      example: "Please {RSVP} by Friday so we know how many chairs to rent.",
+      note: "From French \"répondez s'il vous plaît.\" Also a verb: \"Did you RSVP?\"", video: "" },
+
+    { answer: "touch base", accept: ["touch base with"], register: "work",
+      where: "Work · emails, scheduling a quick chat",
+      meaning: "to make brief contact with someone to check in or update each other",
+      example: "Let's {touch base} Monday morning before the client call.",
+      note: "From baseball — a runner has to touch each base.", video: "" },
+
+    { answer: "long story short", accept: ["to make a long story short", "make a long story short"], register: "casual",
+      where: "Casual · when your story is getting too long",
+      meaning: "skipping the details and getting to the point",
+      example: "{Long story short}, we missed the flight and drove nine hours instead.",
+      note: "", video: "" },
+
+    { answer: "it's giving", accept: ["its giving"], register: "slang",
+      where: "Slang · reacting to an outfit, a photo, a situation",
+      meaning: "it has the vibe of; it reminds me of — followed by the thing it resembles",
+      example: "Sunglasses indoors and a leather jacket? {It's giving} 2005 rock star.",
+      note: "Can stand alone as approval: \"It's giving.\"", video: "" },
+
+    { answer: "tailgate", accept: ["tailgating", "tailgate party", "a tailgate"], register: "everyday",
+      where: "Everyday · football season, college campuses",
+      meaning: "to party in the parking lot before a sports game, grilling food from the back of a car",
+      example: "We're going to {tailgate} at 10 — the game doesn't start till 1.",
+      note: "Also means driving too close behind another car.", video: "" },
+
+    { answer: "how's it going", accept: ["hows it going", "how is it going"], register: "work",
+      where: "Small talk · passing a coworker, walking into a store",
+      meaning: "a friendly hello — it looks like a question, but it usually isn't one",
+      example: "\"Hey, {how's it going}?\" \"Good, you?\"",
+      note: "The expected answer is short: \"Good, you?\" A real, detailed answer surprises people.", video: "" },
+
+    { answer: "it is what it is", accept: [], register: "casual",
+      where: "Casual · shrugging off bad news",
+      meaning: "the situation can't be changed, so there's no point complaining",
+      example: "The flight's delayed three hours. Oh well — {it is what it is}.",
+      note: "", video: "" },
+
+    { answer: "ghost", accept: ["ghosted", "ghosting", "ghost someone"], register: "slang",
+      where: "Slang · dating, friendships, even job applications",
+      meaning: "to suddenly stop replying to someone and disappear, with no explanation",
+      example: "We had two great dates and then he just {ghosted} me.",
+      note: "", video: "" },
+
+    { answer: "BYOB", accept: ["b.y.o.b.", "byo"], register: "everyday",
+      where: "Everyday · party invitations, some small restaurants",
+      meaning: "bring your own drinks — the host isn't providing alcohol",
+      example: "The party's {BYOB}, so grab a six-pack on the way.",
+      note: "Bring Your Own Bottle (or Beer). Some restaurants without a liquor license are BYOB too.", video: "" },
+
+    { answer: "take care", accept: ["take care of yourself"], register: "work",
+      where: "Small talk · ending a call, leaving a shop or the office",
+      meaning: "a warm way to say goodbye",
+      example: "Okay, see you Monday. {Take care}!",
+      note: "\"Take care of yourself\" is what you say when someone's sick.", video: "" },
+
+    { answer: "hit the road", accept: ["hit the road jack"], register: "casual",
+      where: "Casual · leaving a party, starting a trip",
+      meaning: "to leave; to start a journey",
+      example: "It's getting late — we should {hit the road} before traffic.",
+      note: "\"Hit the Road Jack\" is a famous Ray Charles song about telling someone to leave.", video: "" },
+
+    { answer: "spill the tea", accept: ["the tea", "whats the tea", "spill"], register: "slang",
+      where: "Slang · with friends, group chats",
+      meaning: "share the gossip; tell me everything",
+      example: "You went on the date? Okay, {spill the tea}.",
+      note: "\"Tea\" is gossip or the truth. \"Sipping tea\" is quietly enjoying the drama.", video: "" },
+
+    { answer: "Black Friday", accept: [], register: "everyday",
+      where: "Everyday · late November, ads everywhere",
+      meaning: "the huge shopping-sale day right after Thanksgiving",
+      example: "I got the TV for half price on {Black Friday}.",
+      note: "Cyber Monday is the online version, three days later.", video: "" },
+
+    { answer: "pushback", accept: ["push back", "get pushback", "some pushback"], register: "work",
+      where: "Work · after proposing a change",
+      meaning: "resistance or objections to a plan or idea",
+      example: "We got some {pushback} from sales on the new pricing.",
+      note: "As a verb it's two words: \"to push back on something.\"", video: "" },
+
+    { answer: "figure it out", accept: ["figure out"], register: "casual",
+      where: "Casual · reassuring someone, or telling them to solve it themselves",
+      meaning: "to find a solution or understand something, often by yourself",
+      example: "I don't know how the app works yet, but I'll {figure it out}.",
+      note: "", video: "" },
+
+    { answer: "main character energy", accept: ["main character"], register: "slang",
+      where: "Slang · TikTok, describing a bold friend",
+      meaning: "the confidence of someone acting like the star of the story",
+      example: "She walked in late in a red dress like she owned the place. {Main character energy}.",
+      note: "", video: "" },
+
+    { answer: "freshman", accept: ["a freshman", "freshmen"], register: "everyday",
+      where: "Everyday · school and college life",
+      meaning: "a first-year student in high school or college",
+      example: "As a {freshman}, I got lost on campus every single day.",
+      note: "Then sophomore, junior, senior. The \"freshman 15\" is the weight students supposedly gain in year one.", video: "" },
+
+    { answer: "on my plate", accept: ["a lot on my plate", "too much on my plate", "on your plate", "on their plate"], register: "work",
+      where: "Work · explaining that you're busy",
+      meaning: "the amount of work or responsibility you have right now",
+      example: "I can't take that on this week — I've got too much {on my plate}.",
+      note: "", video: "" },
+
+    { answer: "sleep on it", accept: [], register: "casual",
+      where: "Casual · advice before a big decision",
+      meaning: "to wait until the next day before deciding",
+      example: "Don't sign anything tonight. {Sleep on it} and decide tomorrow.",
+      note: "", video: "" },
+
+    { answer: "rizz", accept: [], register: "slang",
+      where: "Slang · teens and twenties, mostly joking",
+      meaning: "charm; the ability to attract someone, especially through conversation",
+      example: "He got her number in two minutes. The man has {rizz}.",
+      note: "From \"charisma.\" Oxford's Word of the Year in 2023.", video: "" },
+
+    { answer: "carpool", accept: ["carpooling", "car pool"], register: "everyday",
+      where: "Everyday · commuting, school runs",
+      meaning: "sharing a car ride with others going the same way, often taking turns driving",
+      example: "We {carpool} to work on Tuesdays and Thursdays to save on gas.",
+      note: "A \"carpool lane\" is a highway lane only for cars with two or more people.", video: "" },
+
+    { answer: "hop on a call", accept: ["jump on a call", "hop on a quick call", "get on a call"], register: "work",
+      where: "Work · Slack and email",
+      meaning: "to have a quick phone or video call",
+      example: "Easier to explain out loud — can we {hop on a call} for ten minutes?",
+      note: "", video: "" },
+
+    { answer: "no worries", accept: [], register: "casual",
+      where: "Casual · everywhere, dozens of times a day",
+      meaning: "it's fine; don't worry about it — a reply to \"sorry\" or \"thanks\"",
+      example: "\"Sorry I'm late!\" \"{No worries}, we just sat down.\"",
+      note: "", video: "" },
+
+    { answer: "touch grass", accept: ["go touch grass"], register: "slang",
+      where: "Slang · online arguments, joking with friends",
+      meaning: "to log off and go outside — a way of saying someone has been online too long",
+      example: "You've been arguing with strangers for three hours. {Touch grass}.",
+      note: "", video: "" },
+
+    { answer: "trick or treat", accept: ["trick-or-treat", "trick or treating"], register: "everyday",
+      where: "Everyday · October 31st, at the front door",
+      meaning: "what kids say on Halloween when they knock on a door asking for candy",
+      example: "The kids yelled \"{trick or treat}!\" and held out their bags.",
+      note: "Leaving the porch light on means \"we have candy.\" Light off means don't knock.", video: "" },
+
+    { answer: "out of office", accept: ["ooo", "out of the office"], register: "work",
+      where: "Work · vacations, sick days, email auto-replies",
+      meaning: "away from work and not answering messages — the auto-reply email uses the same words",
+      example: "I'm {out of office} until the 14th; for anything urgent, contact Dana.",
+      note: "Often shortened to OOO in chat: \"I'm OOO Friday.\"", video: "" },
+
+    { answer: "a piece of cake", accept: ["piece of cake"], register: "casual",
+      where: "Casual · describing a test, a task, a drive",
+      meaning: "very easy",
+      example: "The exam was {a piece of cake} — I finished in twenty minutes.",
+      note: "", video: "" },
+
+    { answer: "glow up", accept: ["glow-up", "glowup", "a glow up"], register: "slang",
+      where: "Slang · reunions, before-and-after photos",
+      meaning: "a big improvement in someone's looks, confidence, or life",
+      example: "Have you seen Dev lately? Huge {glow up} since high school.",
+      note: "", video: "" },
+
+    { answer: "Thanksgiving", accept: [], register: "everyday",
+      where: "Everyday · the fourth Thursday of November",
+      meaning: "the November holiday when families gather for a big meal, traditionally turkey",
+      example: "We're flying home for {Thanksgiving} — my mom's already planning the turkey.",
+      note: "The day after is Black Friday. The Wednesday before is one of the busiest travel days of the year.", video: "" },
+
+    { answer: "wrap up", accept: ["wrap it up", "wrap things up"], register: "work",
+      where: "Work · ending a meeting or a project",
+      meaning: "to finish something",
+      example: "Let's {wrap up} — we've got five minutes and one more item.",
+      note: "", video: "" },
+
+    { answer: "you bet", accept: ["you betcha"], register: "casual",
+      where: "Casual · replying to \"thanks\" or a request",
+      meaning: "sure, absolutely — or you're welcome",
+      example: "\"Can you grab the door?\" \"{You bet}.\"",
+      note: "As a reply to \"thank you\" it means the same as \"no problem.\"", video: "" },
+
+    { answer: "bussin", accept: ["bussin bussin", "bussing"], register: "slang",
+      where: "Slang · talking about food",
+      meaning: "extremely delicious",
+      example: "Have you tried the new taco place? The birria is {bussin}.",
+      note: "Almost only about food. Say a song is bussin and people will laugh at you.", video: "" },
+
+    { answer: "tip", accept: ["a tip", "leave a tip", "tipping", "the tip"], register: "everyday",
+      where: "Everyday · restaurants, taxis, haircuts, deliveries",
+      meaning: "extra money you give for service — in the U.S., about 15–20% at a restaurant",
+      example: "Service was great, so I left a 20% {tip}.",
+      note: "Servers are paid a low base wage, so tipping isn't optional — it's how they get paid.", video: "" },
+
+    { answer: "loop in", accept: ["loop me in", "loop someone in", "keep me in the loop", "in the loop"], register: "work",
+      where: "Work · email threads and chat",
+      meaning: "to include someone in a conversation so they know what's going on",
+      example: "Can you {loop in} Priya on this? She'll need to sign off.",
+      note: "\"Keep me in the loop\" means keep me updated.", video: "" },
+
+    { answer: "what's up", accept: ["whats up", "sup", "what is up", "wassup"], register: "casual",
+      where: "Casual · greeting a friend",
+      meaning: "hi; what's new? — or, in a different tone, what's wrong?",
+      example: "\"Hey, {what's up}?\" \"Not much, just got home.\"",
+      note: "The normal answer is \"not much\" — not a list of what's actually up.", video: "" },
+
+    { answer: "slay", accept: ["slayed", "slaying", "slays"], register: "slang",
+      where: "Slang · compliments, reactions to outfits and performances",
+      meaning: "to do something incredibly well; to look amazing",
+      example: "Did you see her presentation? She absolutely {slayed}.",
+      note: "Often just the one word as a reaction: \"Slay.\"", video: "" },
+
+    { answer: "brunch", accept: ["a brunch"], register: "everyday",
+      where: "Everyday · weekend late mornings",
+      meaning: "a late-morning weekend meal that mixes breakfast and lunch, often with friends",
+      example: "We're doing {brunch} on Sunday — the place with the good pancakes.",
+      note: "Breakfast + lunch. Expect a wait and, often, bottomless mimosas.", video: "" },
+
+    { answer: "ping", accept: ["ping me"], register: "work",
+      where: "Work · Slack, Teams, texting a coworker",
+      meaning: "to send someone a quick message to get their attention",
+      example: "{Ping} me when the report's ready and I'll take a look.",
+      note: "From the sound a computer makes. Works as a noun too: \"I'll send you a ping.\"", video: "" },
+
+    { answer: "I'm beat", accept: ["im beat", "beat"], register: "casual",
+      where: "Casual · the end of a long day",
+      meaning: "I'm exhausted",
+      example: "Two flights and a three-hour meeting — {I'm beat}.",
+      note: "Same idea: wiped out, dead tired, running on empty.", video: "" },
+
+    { answer: "GOAT", accept: ["the goat", "greatest of all time"], register: "slang",
+      where: "Slang · sports arguments, praising a friend",
+      meaning: "the greatest of all time",
+      example: "Serena is the {GOAT} — there's no debate.",
+      note: "Greatest Of All Time. Say it like the animal. The 🐐 emoji means the same thing.", video: "" },
+
+    { answer: "drive-thru", accept: ["drive thru", "drive through", "the drive thru"], register: "everyday",
+      where: "Everyday · fast food, coffee, even pharmacies and banks",
+      meaning: "a window where you order and pick up from your car without getting out",
+      example: "Let's just hit the {drive-thru} — I don't want to get out in the rain.",
+      note: "Americans drive-thru for coffee, burgers, prescriptions, and bank deposits.", video: "" },
+
+    { answer: "bandwidth", accept: ["the bandwidth", "have the bandwidth"], register: "work",
+      where: "Work · saying no to more work, politely",
+      meaning: "the time and energy you have available for something",
+      example: "I'd love to help, but I don't have the {bandwidth} this week.",
+      note: "Borrowed from internet speeds. \"No bandwidth\" = too busy.", video: "" },
+
+    { answer: "hang in there", accept: ["hang in"], register: "casual",
+      where: "Casual · encouraging someone having a hard time",
+      meaning: "keep going; don't give up — things will get better",
+      example: "I know finals are brutal. {Hang in there} — two more days.",
+      note: "", video: "" },
+
+    { answer: "salty", accept: [], register: "slang",
+      where: "Slang · after a loss or a small insult",
+      meaning: "bitter, annoyed, or upset, usually about something minor",
+      example: "He's still {salty} that we didn't invite him to trivia night.",
+      note: "", video: "" },
+
+    { answer: "yard sale", accept: ["garage sale", "a yard sale", "a garage sale"], register: "everyday",
+      where: "Everyday · Saturday mornings in the suburbs",
+      meaning: "a sale of used household stuff on someone's lawn or driveway",
+      example: "I got this lamp for two dollars at a {yard sale}.",
+      note: "Also called a garage sale. Bargaining is expected.", video: "" },
+
+    { answer: "EOD", accept: ["end of day", "by eod", "e.o.d."], register: "work",
+      where: "Work · deadlines in emails and chat",
+      meaning: "end of day — by the time work finishes today",
+      example: "Can you send me the draft by {EOD}?",
+      note: "Usually means before 5 or 6 pm. \"COB\" (close of business) is the same thing.", video: "" },
+
+    { answer: "no big deal", accept: ["not a big deal", "no biggie", "its no big deal"], register: "casual",
+      where: "Casual · brushing off a favor or a problem",
+      meaning: "it's not important; don't worry about it",
+      example: "You forgot my birthday? {No big deal}, we'll celebrate this weekend.",
+      note: "The opposite, \"a big deal,\" means something important: \"This promotion is a big deal.\"", video: "" },
+
+    { answer: "I'm dead", accept: ["im dead", "dead", "im dying"], register: "slang",
+      where: "Slang · reacting to something hilarious, mostly by text",
+      meaning: "that's so funny I can't handle it",
+      example: "That video of your dog stealing the pizza — {I'm dead}.",
+      note: "Usually with 💀 or 😭. Nobody is actually dead.", video: "" },
+
+    { answer: "Super Bowl", accept: ["the super bowl", "superbowl"], register: "everyday",
+      where: "Everyday · early February, every TV in the country",
+      meaning: "the championship game of American football — the biggest TV event of the year",
+      example: "We're hosting a {Super Bowl} party — bring wings.",
+      note: "Half the audience is there for the commercials and the halftime show.", video: "" },
+
+    { answer: "ASAP", accept: ["as soon as possible", "a.s.a.p."], register: "work",
+      where: "Work · urgent requests",
+      meaning: "as soon as possible",
+      example: "The client needs the revised quote {ASAP}.",
+      note: "Said as letters (A-S-A-P) or as a word (\"ay-sap\"). Can sound bossy — soften it with \"if you can.\"", video: "" },
+
+    { answer: "grab a bite", accept: ["grab a bite to eat", "grab something to eat", "grab lunch"], register: "casual",
+      where: "Casual · suggesting a quick meal",
+      meaning: "to get something quick to eat",
+      example: "Want to {grab a bite} before the movie?",
+      note: "\"Grab\" makes anything sound quick and casual: grab a coffee, grab a drink.", video: "" },
+
+    { answer: "extra", accept: ["so extra"], register: "slang",
+      where: "Slang · describing dramatic people or over-the-top behavior",
+      meaning: "over the top; doing way more than the situation needs",
+      example: "She brought a three-tier cake to a casual picnic. So {extra}.",
+      note: "Usually teasing, sometimes admiring.", video: "" },
+
+    { answer: "spring break", accept: [], register: "everyday",
+      where: "Everyday · March, colleges and schools",
+      meaning: "the week off school in March or April — famous for beach trips and parties",
+      example: "We drove down to Florida for {spring break} — four of us in one car.",
+      note: "", video: "" },
+
+    { answer: "low-hanging fruit", accept: ["low hanging fruit", "the low hanging fruit"], register: "work",
+      where: "Work · planning meetings",
+      meaning: "the easiest tasks or wins to go for first",
+      example: "Let's start with the {low-hanging fruit} — the quick fixes — before the big redesign.",
+      note: "", video: "" },
+
+    { answer: "on the house", accept: [], register: "casual",
+      where: "Casual · restaurants and bars",
+      meaning: "free — the business is paying for it",
+      example: "The manager sent over dessert — it's {on the house}.",
+      note: "\"My treat\" or \"it's on me\" is when a person pays, not the business.", video: "" },
+
+    { answer: "mid", accept: [], register: "slang",
+      where: "Slang · reviewing anything: food, movies, songs",
+      meaning: "mediocre; not good, not terrible — a bit disappointing",
+      example: "Everyone hyped that movie up and honestly? It was {mid}.",
+      note: "Short for \"middle.\" Sounds harsher than \"okay.\"", video: "" },
+
+    { answer: "prom", accept: ["the prom", "prom night"], register: "everyday",
+      where: "Everyday · high school, spring of senior year",
+      meaning: "the formal dance at the end of high school — tuxedos, dresses, photos, a date",
+      example: "He asked her to {prom} with a giant sign in the cafeteria.",
+      note: "Asking someone is a whole event: a \"promposal.\"", video: "" },
+
+    { answer: "take it offline", accept: ["take this offline", "take that offline"], register: "work",
+      where: "Work · meetings that are going off track",
+      meaning: "to discuss something later, outside the meeting, usually with just the people involved",
+      example: "This is getting into the details — let's {take it offline} and update the group tomorrow.",
+      note: "Nothing to do with the internet. It just means \"not now, not here.\"", video: "" },
+
+    { answer: "so far so good", accept: [], register: "casual",
+      where: "Casual · checking in on something in progress",
+      meaning: "things are going fine up to now",
+      example: "\"How's the new job?\" \"{So far so good} — everyone's been really nice.\"",
+      note: "", video: "" },
+
+    { answer: "cringe", accept: ["cringey", "cringy"], register: "slang",
+      where: "Slang · reacting to awkward or embarrassing things",
+      meaning: "so awkward or embarrassing that it makes you physically wince",
+      example: "His speech at the wedding was five minutes of pure {cringe}.",
+      note: "Also a verb: \"I cringed so hard.\"", video: "" },
+
+    { answer: "sleepover", accept: ["a sleepover", "sleep over", "slumber party"], register: "everyday",
+      where: "Everyday · kids and teenagers, weekends",
+      meaning: "when a child spends the night at a friend's house for fun",
+      example: "Can Maya come over for a {sleepover} on Friday?",
+      note: "Also called a slumber party. Expect very little sleep.", video: "" },
+
+    { answer: "ballpark", accept: ["a ballpark figure", "ballpark figure", "in the ballpark", "ballpark number"], register: "work",
+      where: "Work · budgets, estimates, negotiations",
+      meaning: "a rough estimate, not an exact number",
+      example: "I don't need the exact price — just give me a {ballpark}.",
+      note: "From baseball stadiums. \"In the ballpark\" means roughly right.", video: "" },
+
+    { answer: "ring a bell", accept: ["rings a bell", "does that ring a bell", "doesnt ring a bell"], register: "casual",
+      where: "Casual · trying to remember a name or a fact",
+      meaning: "to sound familiar; to remind you of something you half-remember",
+      example: "Jake Morrison? The name {rings a bell}, but I can't picture him.",
+      note: "", video: "" },
+
+    { answer: "flex", accept: ["flexing", "a flex", "weird flex"], register: "slang",
+      where: "Slang · showing off, or calling out someone who is",
+      meaning: "to show off — or the thing you're showing off",
+      example: "Posting your paycheck online is a weird {flex}.",
+      note: "\"Weird flex, but okay\" = that's a strange thing to be proud of.", video: "" },
+
+    { answer: "block party", accept: ["a block party"], register: "everyday",
+      where: "Everyday · summer, neighborhoods",
+      meaning: "a street party for everyone who lives on the block, often with the road closed off",
+      example: "The whole street's having a {block party} on the Fourth — bring a chair.",
+      note: "", video: "" },
+
+    { answer: "run it by", accept: ["run it by someone", "run this by", "run that by"], register: "work",
+      where: "Work · before making a decision",
+      meaning: "to tell someone about a plan so they can check it or approve it",
+      example: "Sounds good, but let me {run it by} my manager first.",
+      note: "", video: "" },
+
+    { answer: "you nailed it", accept: ["nailed it", "nail it"], register: "casual",
+      where: "Casual · after someone does something well",
+      meaning: "you did it perfectly",
+      example: "That was the best interview answer I've ever heard. {You nailed it}.",
+      note: "Also sarcastic: \"Nailed it\" under a photo of a collapsed cake.", video: "" },
+
+    { answer: "fire", accept: ["thats fire", "straight fire"], register: "slang",
+      where: "Slang · music, food, outfits, anything excellent",
+      meaning: "excellent; amazing",
+      example: "This playlist is {fire} — who made it?",
+      note: "Often the 🔥 emoji instead of the word. \"Lit\" is the older version.", video: "" },
+
+    { answer: "food truck", accept: ["a food truck"], register: "everyday",
+      where: "Everyday · lunch breaks, festivals, breweries",
+      meaning: "a truck that cooks and sells food from the street or a parking lot",
+      example: "There's a Korean taco {food truck} outside the office on Fridays.",
+      note: "", video: "" },
+
+    { answer: "sync up", accept: ["sync", "lets sync", "a sync", "sync with"], register: "work",
+      where: "Work · scheduling a short meeting",
+      meaning: "to meet briefly so everyone has the same information",
+      example: "Let's {sync up} Thursday so we're ready for the launch.",
+      note: "\"A sync\" is also the meeting itself: \"We have a quick sync at 10.\"", video: "" },
+
+    { answer: "my treat", accept: ["its my treat", "this is my treat", "on me", "its on me"], register: "casual",
+      where: "Casual · offering to pay",
+      meaning: "I'll pay for this",
+      example: "Put your wallet away — lunch is {my treat}.",
+      note: "\"It's on me\" means the same. \"On the house\" is when the business pays.", video: "" },
+
+    { answer: "take the L", accept: ["take an l", "took the l", "an l", "the l"], register: "slang",
+      where: "Slang · admitting defeat, usually with humor",
+      meaning: "to accept a loss or a failure",
+      example: "The whole team forgot the tournament was today. Just {take the L} and go home.",
+      note: "L = loss. Its opposite is a W: \"big W for the team.\"", video: "" },
+
+    { answer: "cookout", accept: ["a cookout", "cook out", "bbq", "barbecue"], register: "everyday",
+      where: "Everyday · summer weekends, backyards",
+      meaning: "an outdoor party where food is grilled — burgers, hot dogs, corn",
+      example: "My uncle's hosting a {cookout} on Saturday — he's very proud of his grill.",
+      note: "In the South, \"barbecue\" means slow-smoked meat, not just grilling. Don't mix them up there.", video: "" },
+
+    { answer: "PTO", accept: ["paid time off", "p.t.o."], register: "work",
+      where: "Work · vacation requests, calendars",
+      meaning: "paid time off — vacation or personal days you get paid for",
+      example: "I'm putting in for {PTO} the last week of December.",
+      note: "Paid Time Off. Americans get famously little — 10 to 15 days a year is common.", video: "" },
+
+    { answer: "wing it", accept: ["winging it", "wing"], register: "casual",
+      where: "Casual · before something you didn't prepare for",
+      meaning: "to do something without a plan, improvising as you go",
+      example: "I didn't have time to practice the presentation, so I'm just going to {wing it}.",
+      note: "From theater: actors learning their lines in the wings, just offstage.", video: "" },
+
+    { answer: "red flag", accept: ["a red flag", "red flags"], register: "slang",
+      where: "Slang · dating advice, group chats",
+      meaning: "a warning sign that something is wrong with a person or a situation",
+      example: "He was rude to the waiter on the first date. Huge {red flag}.",
+      note: "A \"green flag\" is a good sign. A \"beige flag\" is a harmless quirk.", video: "" },
+
+    { answer: "snow day", accept: ["a snow day"], register: "everyday",
+      where: "Everyday · winter mornings, school-age kids",
+      meaning: "a day when school is cancelled because of snow",
+      example: "The kids are praying for a {snow day} tomorrow.",
+      note: "", video: "" },
+
+    { answer: "what do you do", accept: ["what do you do for a living", "so what do you do", "what do you do for work"], register: "work",
+      where: "Small talk · meeting someone new",
+      meaning: "what's your job? — the standard American opening question",
+      example: "\"So, {what do you do}?\" \"I teach English — mostly online.\"",
+      note: "Americans ask this within minutes of meeting. It's small talk, not nosiness.", video: "" },
+
+    { answer: "play it by ear", accept: ["lets play it by ear"], register: "casual",
+      where: "Casual · making loose plans",
+      meaning: "to decide as you go rather than planning ahead",
+      example: "I'm not sure what time we'll finish, so let's {play it by ear}.",
+      note: "From music: playing a song from memory, without sheet music.", video: "" },
+
+    { answer: "gaslight", accept: ["gaslighting", "gaslit", "gaslighted"], register: "slang",
+      where: "Slang · relationship talk, arguments",
+      meaning: "to make someone doubt their own memory or judgment by insisting things didn't happen the way they did",
+      example: "He said the argument never happened. He was totally trying to {gaslight} me.",
+      note: "From the 1944 film Gaslight. Now used loosely for any kind of lying to your face.", video: "" },
+
+    { answer: "jury duty", accept: [], register: "everyday",
+      where: "Everyday · a letter in the mail, any adult",
+      meaning: "being required to serve on a jury in court — you get a letter and have to show up",
+      example: "I can't come in Monday — I've got {jury duty}.",
+      note: "It's a legal obligation. Most people are sent home the same day.", video: "" },
+
+    { answer: "have a good one", accept: ["have a good day", "have a nice one"], register: "work",
+      where: "Small talk · leaving a store, ending a call",
+      meaning: "goodbye; have a good day",
+      example: "Thanks for your help. {Have a good one}!",
+      note: "\"One\" means whatever's next — day, evening, weekend. Works any time.", video: "" },
+
+    { answer: "the bottom line", accept: ["bottom line"], register: "casual",
+      where: "Casual · summing up what really matters",
+      meaning: "the most important point; what it all comes down to",
+      example: "We could argue all night, but {the bottom line} is we can't afford it.",
+      note: "From accounting: the last line of a report, showing profit or loss.", video: "" },
+
+    { answer: "rent free", accept: ["rent-free", "living rent free", "in your head rent free"], register: "slang",
+      where: "Slang · teasing someone who can't stop thinking about something",
+      meaning: "occupying someone's mind constantly, without them wanting it to",
+      example: "She blocked him months ago and he's still living in her head {rent free}.",
+      note: "", video: "" },
+
+    { answer: "ranch", accept: ["ranch dressing"], register: "everyday",
+      where: "Everyday · pizza places, wings, salads, vegetables",
+      meaning: "a creamy, herby dressing Americans put on salads, pizza, wings — almost everything",
+      example: "Can I get a side of {ranch} with the wings?",
+      note: "The most popular dressing in the U.S. Some people dip pizza in it. Yes, really.", video: "" },
+
+    { answer: "sounds good", accept: ["sounds great", "sounds good to me"], register: "work",
+      where: "Small talk · agreeing to a plan, by text or email",
+      meaning: "okay; I agree; that works for me",
+      example: "\"Meet at the café at 2?\" \"{Sounds good}.\"",
+      note: "The all-purpose polite yes. \"Sounds good to me\" is the same.", video: "" }
   ];
 
   /* =====================================================================
      GAME CODE — nothing below needs editing to add puzzles
      ===================================================================== */
   var $ = function (id) { return document.getElementById(id); };
-  var KEY_STATE = 'c2e:state', KEY_STATS = 'c2e:stats', KEY_SEEN = 'c2e:seenHelp';
+  var KEY_STATE = 'c2e:state:v3', KEY_STATS = 'c2e:stats:v3', KEY_SEEN = 'c2e:seenHelp:v3';
 
   function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
   function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 
-  // ---- which puzzle is today's?
+  // ---- which day is it?
   function dayNumberFor(d) {
     var parts = START_DATE.split('-').map(Number);
     var start = Date.UTC(parts[0], parts[1] - 1, parts[2]);
@@ -524,16 +1005,17 @@
   }
   var params = new URLSearchParams(location.search);
   var practice = false, day;
-  if (params.has('p')) {                       // ?p=12  → preview puzzle #12 (not saved)
+  if (params.has('p')) {                       // ?p=12  → preview day #12's five expressions (not saved)
     var n = parseInt(params.get('p'), 10);
     if (n >= 1) { day = n - 1; practice = true; }
-  } else if (params.has('date')) {             // ?date=2026-10-01 → preview that day's puzzle
+  } else if (params.has('date')) {             // ?date=2026-10-01 → preview that day's set
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(params.get('date'));
     if (m) { day = Math.max(0, dayNumberFor(new Date(+m[1], +m[2] - 1, +m[3]))); practice = true; }
   }
   if (day === undefined) day = Math.max(0, dayNumberFor(new Date()));
-  var puzzle = PUZZLES[day % PUZZLES.length];
-  var puzzleNo = day + 1;
+  var dayNo = day + 1;
+  var dayPuzzles = [];
+  for (var r0 = 0; r0 < ROUNDS; r0++) dayPuzzles.push(PUZZLES[(day * ROUNDS + r0) % PUZZLES.length]);
 
   // ---- text normalisation (lower-case, no punctuation, hyphens → spaces)
   function norm(s) {
@@ -542,21 +1024,57 @@
       .replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, ' ')
       .replace(/\s+/g, ' ').trim();
   }
-  var answerNorm = norm(puzzle.answer);
-  var answerWords = answerNorm.split(' ');
-  var accepted = {};
-  accepted[answerNorm] = true;
-  (puzzle.accept || []).forEach(function (a) { accepted[norm(a)] = true; });
 
-  function dropLeadingTo(n) {                  // "to bite the bullet" counts as "bite the bullet"
+  // ---- state: five rounds, played in order
+  function freshState() {
+    var rounds = [];
+    for (var i = 0; i < ROUNDS; i++) rounds.push({ guesses: [], status: 'playing' });
+    return { day: day, rounds: rounds, current: 0 };
+  }
+  var state = freshState();
+  if (!practice) {
+    var saved = load(KEY_STATE, null);
+    if (saved && saved.day === day && Array.isArray(saved.rounds) && saved.rounds.length === ROUNDS) state = saved;
+  }
+  var stats = load(KEY_STATS, {});
+  stats.played = stats.played || 0; stats.total = stats.total || 0; stats.best = stats.best || 0;
+  stats.streak = stats.streak || 0; stats.maxStreak = stats.maxStreak || 0;
+  stats.dist = stats.dist || [];                                   // index 0–4: solved on guess 1–5; index 5: missed
+  while (stats.dist.length < MAX_GUESSES + 1) stats.dist.push(0);
+  if (typeof stats.lastDay !== 'number') stats.lastDay = null;
+
+  function persist() { if (!practice) save(KEY_STATE, state); }
+
+  // ---- the expression currently being played
+  var puzzle, answerNorm, answerWords, accepted, round;
+  function setRound(i) {
+    puzzle = dayPuzzles[i];
+    round = state.rounds[i];
+    answerNorm = norm(puzzle.answer);
+    answerWords = answerNorm.split(' ');
+    accepted = {};
+    accepted[answerNorm] = true;
+    (puzzle.accept || []).forEach(function (a) { accepted[norm(a)] = true; });
+  }
+  function dropLeadingTo(n) {                  // "to hang out" counts as "hang out"
     if (answerNorm.indexOf('to ') !== 0 && n.indexOf('to ') === 0) return n.slice(3);
     return n;
   }
   function isCorrect(g) { var n = norm(g); return !!(accepted[n] || accepted[dropLeadingTo(n)]); }
   function guessWords(g) { return dropLeadingTo(norm(g)).split(' ').filter(Boolean); }
+  function wrongCount() { return round.guesses.filter(function (g) { return !isCorrect(g); }).length; }
+  function hintsUnlocked() { return Math.min(wrongCount(), 4); }
+
+  // Points for a round: by guess number if solved, 0 if not
+  function pointsFor(rd) { return rd.status === 'won' ? POINTS[rd.guesses.length - 1] : 0; }
+  function isFinished(rd) { return rd.status !== 'playing'; }
+  function totalPoints() { return state.rounds.reduce(function (s, rd) { return s + pointsFor(rd); }, 0); }
+  function dayDone() { return state.rounds.every(isFinished); }
+  function ptsClass(p) { return p >= 8 ? 'hi' : p > 0 ? 'mid' : 'zero'; }
 
   // Wordle-style word evaluation: g = right place, y = elsewhere, x = absent
-  function evaluate(gw, aw) {
+  function evaluate(gw, aw, correct) {
+    if (correct) return gw.map(function () { return 'g'; });   // an accepted variant is all green
     var res = gw.map(function () { return 'x'; });
     var left = aw.slice();
     gw.forEach(function (w, i) { if (aw[i] === w) { res[i] = 'g'; left[i] = null; } });
@@ -568,51 +1086,85 @@
     return res;
   }
 
-  // ---- state
-  var state = { day: day, guesses: [], status: 'playing' };
-  if (!practice) {
-    var saved = load(KEY_STATE, null);
-    if (saved && saved.day === day && Array.isArray(saved.guesses)) state = saved;
-  }
-  var stats = load(KEY_STATS, {});
-  stats.played = stats.played || 0; stats.won = stats.won || 0; stats.streak = stats.streak || 0;
-  stats.maxStreak = stats.maxStreak || 0; stats.dist = stats.dist || [0, 0, 0, 0];
-  if (typeof stats.lastWinDay !== 'number') stats.lastWinDay = null;
-
-  function persist() { if (!practice) save(KEY_STATE, state); }
-  function wrongCount() { return state.guesses.filter(function (g) { return !isCorrect(g); }).length; }
-  function hintsUnlocked() { return Math.min(wrongCount(), 3) + 1; }
-
   // ---- links
-  function watchUrl() {
-    if (puzzle.video) return puzzle.video;
-    return 'https://youglish.com/pronounce/' + encodeURIComponent(puzzle.answer) + '/english/us';
+  function watchUrl(pz) {
+    if (pz.video) return pz.video;
+    return 'https://youglish.com/pronounce/' + encodeURIComponent(pz.answer) + '/english/us';
   }
-  function yarnUrl() { return 'https://getyarn.io/yarn-find?text=' + encodeURIComponent(puzzle.answer); }
+  function yarnUrl(pz) { return 'https://getyarn.io/yarn-find?text=' + encodeURIComponent(pz.answer); }
 
   // ---- rendering helpers
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function vowelHtml(answer) {
-    return '<div class="vowels">' + answer.split(/\s+/).map(function (w) {
-      return '<span class="vw">' + Array.prototype.map.call(w, function (ch) {
+
+  // The example sentence: {braces} mark the expression.
+  function exampleParts(pz) {
+    var m = /^([\s\S]*?)\{([^}]*)\}([\s\S]*)$/.exec(pz.example || '');
+    return m ? { before: m[1], phrase: m[2], after: m[3] } : { before: pz.example || '', phrase: '', after: '' };
+  }
+  function exampleBlankHtml(pz) {
+    var p = exampleParts(pz);
+    if (!p.phrase) return esc(p.before);
+    return esc(p.before) + '<span class="blank" aria-label="blank"></span>' + esc(p.after);
+  }
+  function exampleFullHtml(pz) {
+    var p = exampleParts(pz);
+    return '“' + esc(p.before) + (p.phrase ? '<b>' + esc(p.phrase) + '</b>' : '') + esc(p.after) + '”';
+  }
+
+  // Letter boxes: show first letters and/or vowels, blanks for the rest
+  function lettersHtml(answer, showFirst, showVowels) {
+    var html = '<div class="letters">' + answer.split(/\s+/).map(function (w) {
+      var seenLetter = false;
+      return '<span class="lw">' + Array.prototype.map.call(w, function (ch) {
         var l = ch.toLowerCase();
-        if (/[aeiou]/.test(l)) return '<span class="vb v">' + ch.toUpperCase() + '</span>';
-        if (/[a-z0-9]/.test(l)) return '<span class="vb"></span>';
-        return '<span class="vp">' + esc(ch) + '</span>';
+        if (/[a-z0-9]/.test(l)) {
+          var show = (showFirst && !seenLetter) || (showVowels && /[aeiou]/.test(l));
+          seenLetter = true;
+          return show ? '<span class="lb on">' + ch.toUpperCase() + '</span>' : '<span class="lb"></span>';
+        }
+        return '<span class="lp">' + esc(ch) + '</span>';
       }).join('') + '</span>';
     }).join('') + '</div>';
+    if (showVowels && !/[aeiou]/i.test(answer)) html += '<p class="letters-note">No vowels at all — it’s an abbreviation.</p>';
+    return html;
   }
-  var lastUnlocked = 1;
+
+  function renderDateline() {
+    if (practice) {
+      $('dateline').textContent = 'Day #' + dayNo + ' · Practice';
+      $('practiceNote').hidden = false;
+      $('practiceNote').innerHTML = 'You’re previewing day #' + dayNo + '. Results aren’t saved. <a href="' + esc(location.pathname) + '">Back to today</a>';
+    } else {
+      var d = new Date();
+      $('dateline').textContent = '#' + dayNo + ' · ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+  }
+  function renderStrip() {
+    var html = state.rounds.map(function (rd, i) {
+      var cls = 'cell';
+      if (isFinished(rd)) cls += ' ' + ptsClass(pointsFor(rd));
+      else if (i === state.current) cls += ' current';
+      var label = isFinished(rd) ? pointsFor(rd) : (i + 1);
+      return '<div class="' + cls + '" aria-label="Expression ' + (i + 1) + '">' + label + '</div>';
+    }).join('');
+    html += '<div class="strip-total">' + totalPoints() + ' <small>/ 50</small></div>';
+    $('strip').innerHTML = html;
+  }
+  function renderPrompt() {
+    var n = answerWords.length;
+    $('promptLabel').textContent = 'Expression ' + (state.current + 1) + ' of ' + ROUNDS + ' · ' + (n === 1 ? '1 word' : n + ' words');
+    $('promptText').textContent = puzzle.meaning;
+  }
+  var lastUnlocked = 0;
   function renderHints() {
     var unlocked = hintsUnlocked();
-    var n = answerWords.length;
-    $('hintBody1').textContent = n === 1 ? '1 word' : n + ' words';
     var bodies = {
-      2: esc(puzzle.meaning) + '<span class="chip">' + esc(puzzle.register) + '</span>',
-      3: esc(puzzle.form),
-      4: vowelHtml(puzzle.answer)
+      1: esc(puzzle.where),
+      2: exampleBlankHtml(puzzle),
+      3: lettersHtml(puzzle.answer, true, false),
+      4: lettersHtml(puzzle.answer, true, true)
     };
-    for (var i = 2; i <= 4; i++) {
+    for (var i = 1; i <= 4; i++) {
       var el = $('hint' + i), body = $('hintBody' + i);
       if (i <= unlocked) {
         el.classList.remove('locked');
@@ -625,64 +1177,83 @@
     }
     lastUnlocked = unlocked;
   }
-  var revealedRows = state.guesses.length;
+  var revealedRows = 0;
   function renderGrid() {
     var html = '';
     for (var r = 0; r < MAX_GUESSES; r++) {
-      var g = state.guesses[r];
+      var g = round.guesses[r];
       if (g !== undefined) {
-        var gw = guessWords(g), ev = evaluate(gw, answerWords);
+        var gw = guessWords(g), ev = evaluate(gw, answerWords, isCorrect(g));
         var fresh = r >= revealedRows ? ' reveal' : '';
         html += '<div class="row">' + gw.map(function (w, i) {
           return '<span class="tile ' + ev[i] + fresh + '">' + esc(w) + '</span>';
         }).join('') + '</div>';
       } else {
-        var cur = (state.status === 'playing' && r === state.guesses.length) ? ' current' : '';
-        html += '<div class="row' + cur + '">' + answerWords.map(function () { return '<span class="tile empty"></span>'; }).join('') + '</div>';
+        var cur = (round.status === 'playing' && r === round.guesses.length) ? ' current' : '';
+        html += '<div class="row' + cur + '">' + answerWords.map(function () { return '<span class="tile empty"></span>'; }).join('') +
+                (cur ? '<span class="row-pts">' + POINTS[r] + ' pts</span>' : '') + '</div>';
       }
     }
     $('grid').innerHTML = html;
-    revealedRows = state.guesses.length;
+    revealedRows = round.guesses.length;
   }
   function renderResult() {
-    var over = state.status !== 'playing';
+    var over = isFinished(round);
     $('entry').hidden = over;
     $('result').hidden = !over;
     if (!over) return;
-    var k = state.guesses.length;
-    $('verdict').textContent = state.status === 'won'
-      ? ['Got it in one', 'Got it in two', 'Got it in three', 'Got it on the last try'][k - 1]
-      : 'Not this time — the answer was';
+    var k = round.guesses.length, pts = pointsFor(round);
+    $('verdict').innerHTML = round.status === 'won'
+      ? esc(['Got it in one', 'Got it in two', 'Got it in three', 'Got it in four', 'Got it on the last try'][k - 1]) + ' · <b>+' + pts + ' points</b>'
+      : 'Not this time · <b>0 points</b> — the answer was';
     $('answerText').textContent = puzzle.answer;
     $('chipRegister').textContent = puzzle.register;
     $('resMeaning').textContent = puzzle.meaning;
-    $('resExample').textContent = '“' + puzzle.example + '”';
-    $('resForm').textContent = puzzle.form;
-    $('linkWatch').href = watchUrl();
-    $('linkYarn').href = yarnUrl();
+    $('resExample').innerHTML = exampleFullHtml(puzzle);
+    if (puzzle.note) { $('resNote').hidden = false; $('resNote').innerHTML = '<b>Good to know:</b> ' + esc(puzzle.note); }
+    else $('resNote').hidden = true;
+    $('linkWatch').href = watchUrl(puzzle);
+    $('linkYarn').href = yarnUrl(puzzle);
+    $('btnNext').textContent = state.current === ROUNDS - 1 ? 'See your score →' : 'Next expression →';
+  }
+  function renderSummary() {
+    var total = totalPoints();
+    $('scoreNum').textContent = total;
+    $('scoreVerdict').textContent =
+      total === 50 ? 'Perfect day. Every expression on the first guess.' :
+      total >= 40 ? 'Great day — you know how people actually talk.' :
+      total >= 30 ? 'Solid. A couple of these will stick now.' :
+      total >= 20 ? 'Not bad — the hard ones are the ones you remember.' :
+                    'Tough set. Tomorrow’s a fresh 50.';
+    $('recap').innerHTML = state.rounds.map(function (rd, i) {
+      var pz = dayPuzzles[i], p = pointsFor(rd);
+      return '<div class="recap-row">' +
+        '<div class="pts ' + ptsClass(p) + '">' + p + '</div>' +
+        '<div class="recap-name">' + esc(pz.answer) + '<small>' + esc(pz.meaning) + '</small></div>' +
+        '<a href="' + esc(watchUrl(pz)) + '" target="_blank" rel="noopener">▶ clip</a>' +
+        '</div>';
+    }).join('');
     renderNextLine();
   }
   function renderNextLine() {
     var el = $('nextLine');
-    if (practice) { el.innerHTML = 'Practice puzzle — <a class="textlink" href="' + esc(location.pathname) + '">play today’s</a>'; return; }
+    if (practice) { el.innerHTML = 'Practice day — <a class="textlink" href="' + esc(location.pathname) + '">play today’s</a>'; return; }
     var now = new Date();
     var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     var diff = Math.max(0, next - now);
     if (diff === 0) { location.reload(); return; }
     var h = Math.floor(diff / 3600000), mi = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
-    el.textContent = 'Next expression in ' + [h, mi, s].map(function (x) { return (x < 10 ? '0' : '') + x; }).join(':');
+    el.textContent = 'Five new expressions in ' + [h, mi, s].map(function (x) { return (x < 10 ? '0' : '') + x; }).join(':');
   }
-  function renderDateline() {
-    if (practice) {
-      $('dateline').textContent = '#' + puzzleNo + ' · Practice';
-      $('practiceNote').hidden = false;
-      $('practiceNote').innerHTML = 'You’re previewing puzzle #' + puzzleNo + '. Results aren’t saved. <a href="' + esc(location.pathname) + '">Back to today’s puzzle</a>';
-    } else {
-      var d = new Date();
-      $('dateline').textContent = '#' + puzzleNo + ' · ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    }
+  function render() {
+    renderDateline(); renderStrip();
+    var inSummary = state.current >= ROUNDS;
+    $('prompt').hidden = inSummary; $('hints').hidden = inSummary; $('grid').hidden = inSummary;
+    $('summary').hidden = !inSummary;
+    if (inSummary) { $('entry').hidden = true; $('result').hidden = true; renderSummary(); return; }
+    setRound(state.current);
+    renderPrompt(); renderHints(); renderGrid(); renderResult();
   }
-  function render() { renderDateline(); renderHints(); renderGrid(); renderResult(); }
 
   // ---- toast
   var toastTimer;
@@ -693,18 +1264,18 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, ms || 1800);
   }
 
-  // ---- finishing a game
-  function finish(won) {
+  // ---- finishing a round / the day
+  function finishRound() {
     if (practice) return;
-    stats.played += 1;
-    if (won) {
-      stats.won += 1;
-      stats.dist[state.guesses.length - 1] += 1;
-      stats.streak = (stats.lastWinDay === day - 1) ? stats.streak + 1 : 1;
-      stats.lastWinDay = day;
+    stats.dist[round.status === 'won' ? round.guesses.length - 1 : MAX_GUESSES] += 1;
+    if (dayDone()) {
+      var total = totalPoints();
+      stats.played += 1;
+      stats.total += total;
+      if (total > stats.best) stats.best = total;
+      stats.streak = (stats.lastDay === day - 1) ? stats.streak + 1 : 1;
+      stats.lastDay = day;
       if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
-    } else {
-      stats.streak = 0;
     }
     save(KEY_STATS, stats);
   }
@@ -712,34 +1283,45 @@
   // ---- submitting a guess
   $('entry').addEventListener('submit', function (e) {
     e.preventDefault();
-    if (state.status !== 'playing') return;
+    if (state.current >= ROUNDS || isFinished(round)) return;
     var raw = $('guessInput').value.trim();
     var n = norm(raw);
     if (!n) { toast('Type your guess first'); return; }
-    if (state.guesses.some(function (g) { return norm(g) === n; })) { toast('You already tried that'); return; }
-    state.guesses.push(raw);
+    if (round.guesses.some(function (g) { return norm(g) === n; })) { toast('You already tried that'); return; }
+    round.guesses.push(raw);
     $('guessInput').value = '';
     if (isCorrect(raw)) {
-      state.status = 'won'; finish(true);
-      toast(['Brilliant!', 'Impressive', 'Nicely done', 'Phew — just made it'][state.guesses.length - 1], 2200);
-    } else if (state.guesses.length >= MAX_GUESSES) {
-      state.status = 'lost'; finish(false);
+      round.status = 'won'; finishRound();
+      toast(['Brilliant! +10', 'Impressive — +8', 'Nicely done — +6', 'Good work — +4', 'Phew — +2'][round.guesses.length - 1], 2200);
+    } else if (round.guesses.length >= MAX_GUESSES) {
+      round.status = 'lost'; finishRound();
       toast('Out of guesses', 2200);
     } else {
-      toast(['', '', 'Not it — here’s the meaning', 'Not it — here’s the form', 'Not it — here are the vowels'][hintsUnlocked()]);
+      toast(['', 'Not it — here’s where you’d hear it', 'Not it — here it is in a sentence', 'Not it — here are the first letters', 'Not it — here are the vowels'][hintsUnlocked()]);
     }
     persist(); render();
-    if (state.status === 'playing') $('guessInput').focus();
+    if (!isFinished(round)) $('guessInput').focus();
+  });
+
+  // ---- next expression
+  $('btnNext').addEventListener('click', function () {
+    if (!isFinished(round)) return;
+    state.current += 1;
+    lastUnlocked = 0; revealedRows = 0;
+    persist(); render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (state.current < ROUNDS) $('guessInput').focus();
   });
 
   // ---- share
   function shareText() {
-    var rows = state.guesses.map(function (g) {
-      return evaluate(guessWords(g), answerWords).map(function (r) { return { g: '🟩', y: '🟨', x: '⬜' }[r]; }).join('');
-    }).join('\n');
-    var score = state.status === 'won' ? state.guesses.length : 'X';
+    var lines = state.rounds.map(function (rd) {
+      var k = rd.guesses.length, p = pointsFor(rd);
+      var squares = rd.status === 'won' ? Array(k).join('⬜') + '🟩' : Array(MAX_GUESSES + 1).join('⬜');
+      return squares + ' ' + p;
+    });
     var url = /^https?:/.test(location.protocol) ? '\n' + location.origin + location.pathname : '';
-    return SITE_NAME + ' #' + puzzleNo + ' ' + score + '/' + MAX_GUESSES + '\n' + rows + url;
+    return SITE_NAME + ' #' + dayNo + ' · ' + totalPoints() + '/50\n' + lines.join('\n') + url;
   }
   $('btnShare').addEventListener('click', function () {
     var text = shareText();
@@ -758,6 +1340,7 @@
   $('btnHelp').addEventListener('click', function () { openModal('modalHelp'); });
   $('closeHelp').addEventListener('click', function () { closeModal('modalHelp'); save(KEY_SEEN, true); });
   $('btnStats').addEventListener('click', function () { renderStats(); openModal('modalStats'); });
+  $('btnStats2').addEventListener('click', function () { renderStats(); openModal('modalStats'); });
   $('closeStats').addEventListener('click', function () { closeModal('modalStats'); });
   Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (m) {
     m.addEventListener('click', function (e) { if (e.target === m) { m.hidden = true; if (m.id === 'modalHelp') save(KEY_SEEN, true); } });
@@ -767,21 +1350,21 @@
   });
   function renderStats() {
     $('stPlayed').textContent = stats.played;
-    $('stWin').textContent = stats.played ? Math.round(100 * stats.won / stats.played) : 0;
+    $('stAvg').textContent = stats.played ? Math.round(stats.total / stats.played) : 0;
+    $('stBest').textContent = stats.best;
     $('stStreak').textContent = stats.streak;
-    $('stMax').textContent = stats.maxStreak;
+    var labels = ['1st · 10', '2nd · 8', '3rd · 6', '4th · 4', '5th · 2', 'Missed'];
     var max = Math.max.apply(null, stats.dist.concat([1]));
-    var hl = (!practice && state.status === 'won') ? state.guesses.length - 1 : -1;
     $('dist').innerHTML = stats.dist.map(function (c, i) {
       var w = c ? Math.max(8, Math.round(100 * c / max)) : 0;
-      return '<div class="bar"><em>' + (i + 1) + '</em><i class="' + (i === hl ? 'hl' : '') + '" style="width:' + (w ? w + '%' : 'auto') + '">' + c + '</i></div>';
+      return '<div class="bar"><em>' + labels[i] + '</em><i class="' + (i === 0 && c ? 'hl' : '') + '" style="width:' + (w ? w + '%' : 'auto') + '">' + c + '</i></div>';
     }).join('');
   }
 
   // ---- go
   render();
   if (!practice && !load(KEY_SEEN, false)) openModal('modalHelp');
-  setInterval(function () { if (state.status !== 'playing') renderNextLine(); }, 1000);
+  setInterval(function () { if (state.current >= ROUNDS) renderNextLine(); }, 1000);
 })();
 </script>
 </body>
