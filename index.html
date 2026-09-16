@@ -185,6 +185,10 @@
   .recap-name small{display:block; font-weight:400; color:var(--muted); font-size:13px; line-height:1.35}
   .recap-row a{font-size:13px; font-weight:600; color:var(--text); text-decoration:underline; text-underline-offset:3px; white-space:nowrap}
 
+  /* ---------- link to the other game ---------- */
+  .crosslink{margin:12px 0 0; padding-top:16px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+  .crosslink a{color:var(--text)}
+
   /* ---------- toast ---------- */
   .toast{
     position:fixed; top:72px; left:50%; transform:translateX(-50%); z-index:20;
@@ -308,6 +312,8 @@
     </div>
     <p class="next" id="nextLine"></p>
   </section>
+
+  <p class="crosslink">Also play <a href="snowball.html">Snowball</a> — grow one true sentence about your life, five layers a day.</p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
