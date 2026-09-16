@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snowball</title>
+<meta name="description" content="Start with one short, true sentence about your life. Add five layers, one at a time. Finish with one long sentence — and share it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;800&display=swap">
+<style>
+  :root{
+    --bg:#ffffff; --text:#1a1a1b; --muted:#6b6f76; --line:#d3d6da; --line-strong:#878a8c; --surface:#f2f3f5;
+    --green:#6aaa64; --yellow:#c9b458; --grey:#787c7e; --on-tile:#ffffff;
+    --ice:#3f86cf; --ball:#dfe9f3; --ball-hi:#ffffff; --ball-edge:#b9cbdd; --mark:#dcebd8;
+    --btn:#1a1a1b; --btn-text:#ffffff; --focus:#2f6fed;
+    --toast-bg:#1a1a1b; --toast-text:#ffffff; --scrim:rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121213; --text:#e7e7e8; --muted:#9a9ca3; --line:#3a3a3c; --line-strong:#565758; --surface:#1e1e20;
+      --green:#538d4e; --yellow:#b59f3b; --grey:#3a3a3c; --on-tile:#ffffff;
+      --ice:#7fb3f0; --ball:#2b323b; --ball-hi:#4b5563; --ball-edge:#414b57; --mark:#2f4a2c;
+      --btn:#e7e7e8; --btn-text:#121213; --focus:#7aa2ff;
+      --toast-bg:#e7e7e8; --toast-text:#121213; --scrim:rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121213; --text:#e7e7e8; --muted:#9a9ca3; --line:#3a3a3c; --line-strong:#565758; --surface:#1e1e20;
+    --green:#538d4e; --yellow:#b59f3b; --grey:#3a3a3c; --on-tile:#ffffff;
+    --ice:#7fb3f0; --ball:#2b323b; --ball-hi:#4b5563; --ball-edge:#414b57; --mark:#2f4a2c;
+    --btn:#e7e7e8; --btn-text:#121213; --focus:#7aa2ff;
+    --toast-bg:#e7e7e8; --toast-text:#121213; --scrim:rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; padding-inline:16px; padding-block:0;
+    background:var(--bg); color:var(--text);
+    font-family:"Libre Franklin","Franklin Gothic Medium","Helvetica Neue",Arial,sans-serif;
+    font-size:16px; line-height:1.4;
+  }
+  button, input, textarea, a{font-family:inherit}
+  :focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+  mark{background:var(--mark); color:inherit; border-radius:2px; padding:0 2px; box-decoration-break:clone; -webkit-box-decoration-break:clone}
+
+  /* ---------- header ---------- */
+  .top{
+    max-width:500px; margin:0 auto; height:56px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{margin:0; font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1}
+  .wordmark span{color:var(--ice)}
+  .icon{
+    width:36px; height:36px; border:0; border-radius:50%; background:transparent; color:var(--text);
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .icon:hover{background:var(--surface)}
+  .icon .q{
+    width:22px; height:22px; border:2px solid currentColor; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:14px;
+  }
+  .icon svg{width:22px; height:22px; display:block}
+
+  /* ---------- game column ---------- */
+  .game{max-width:500px; margin:0 auto; padding-block:16px 48px; display:flex; flex-direction:column; gap:18px}
+  .dateline{margin:0; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .note{margin:0; padding:10px 12px; border-radius:6px; background:var(--surface); font-size:13px; color:var(--muted)}
+  .note a{color:var(--text)}
+
+  /* ---------- strip: the snowball + one cell per layer ---------- */
+  .strip{display:flex; align-items:center; gap:10px}
+  .ball{
+    flex:none; width:44px; height:44px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--ball-hi) 0%, var(--ball) 72%);
+    border:1px solid var(--ball-edge);
+    box-shadow:inset -3px -4px 8px rgba(0,0,0,.07);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; color:var(--text);
+    transition:width .35s ease, height .35s ease, font-size .35s ease;
+  }
+  .cells{flex:1; min-width:0; display:flex; gap:6px}
+  .cell{
+    flex:1; min-width:0; height:44px; border:2px solid var(--line); border-radius:4px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    color:var(--muted); overflow:hidden;
+  }
+  .cell span{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; line-height:1; white-space:nowrap}
+  .cell b{font-size:15px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums}
+  .cell.current{border-color:var(--text); color:var(--text)}
+  .cell.hi{background:var(--green); border-color:var(--green); color:#fff}
+  .cell.mid{background:var(--yellow); border-color:var(--yellow); color:#fff}
+  .cell.zero{background:var(--grey); border-color:var(--grey); color:#fff}
+
+  /* ---------- topic (always visible) ---------- */
+  .prompt{padding:14px 16px 12px; border-radius:8px; background:var(--surface); display:flex; flex-direction:column; gap:4px}
+  .prompt-label{margin:0; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .prompt-text{margin:0; font-size:20px; font-weight:600; line-height:1.3; text-wrap:balance}
+  .prompt-sub{margin:4px 0 0}
+  .linkbtn{
+    background:none; border:0; padding:0; cursor:pointer;
+    color:var(--muted); font-size:13px; text-decoration:underline; text-underline-offset:3px;
+  }
+  .linkbtn:hover{color:var(--text)}
+
+  /* ---------- step 1: the starting sentence ---------- */
+  .lead{margin:0; font-size:15px}
+  .entry{display:flex; gap:8px}
+  .entry input{
+    flex:1; min-width:0; height:48px; padding:0 14px; border:2px solid var(--line); border-radius:6px;
+    background:var(--bg); color:var(--text); font-size:16px;
+  }
+  .entry input::placeholder{color:var(--muted)}
+  .entry input:focus{outline:none; border-color:var(--text)}
+  .primary, .secondary{
+    height:48px; padding:0 18px; border-radius:6px; font-size:15px; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; white-space:nowrap;
+  }
+  .primary{border:0; background:var(--btn); color:var(--btn-text)}
+  .secondary{border:2px solid var(--line-strong); background:transparent; color:var(--text)}
+  .primary:hover{opacity:.9}
+  .secondary:hover{background:var(--surface)}
+  .step{display:flex; flex-direction:column; gap:14px}
+
+  /* ---------- step 2: a layer ---------- */
+  .layer{padding:14px 16px 14px; border-radius:8px; border:1px solid var(--line); display:flex; flex-direction:column; gap:8px}
+  .layer-label{margin:0; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .layer-q{margin:0; font-size:28px; font-weight:800; letter-spacing:-.02em; line-height:1.1}
+  .layer-inst{margin:0; font-size:15px}
+  .examples{display:flex; flex-wrap:wrap; gap:6px; margin-top:2px}
+  .ex{padding:4px 10px 5px; border:1px solid var(--line-strong); border-radius:999px; font-size:13px; font-style:italic; line-height:1.2}
+  .tip{margin:2px 0 0; font-size:13px; color:var(--muted); line-height:1.45}
+  .tip b{color:var(--text); font-weight:600}
+  .tip i{font-style:italic}
+
+  .sofar{border-left:3px solid var(--ice); padding:2px 0 2px 12px; display:flex; flex-direction:column; gap:4px}
+  .sofar-label{margin:0; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .sofar-text{margin:0; font-size:17px; line-height:1.45; overflow-wrap:anywhere}
+
+  .grow{display:flex; flex-direction:column; gap:8px}
+  .grow textarea{
+    width:100%; min-height:96px; padding:12px 14px; border:2px solid var(--line); border-radius:6px;
+    background:var(--bg); color:var(--text); font-size:16px; line-height:1.45; resize:vertical;
+  }
+  .grow textarea:focus{outline:none; border-color:var(--text)}
+  .grow-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .count{flex:1; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .count b{color:var(--text); font-weight:600}
+
+  .nudge{border:2px solid var(--yellow); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px}
+  .nudge-text{margin:0; font-size:15px; line-height:1.45}
+  .nudge-text b{font-weight:600}
+  .actions{display:flex; gap:8px; flex-wrap:wrap}
+  .actions .grow{flex:1}
+
+  /* ---------- step 3: the finished snowball ---------- */
+  .summary{display:flex; flex-direction:column; gap:14px}
+  .verdict{margin:0; font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+  .final{margin:0; font-size:22px; font-weight:600; line-height:1.4; text-wrap:pretty; overflow-wrap:anywhere}
+  .growth{margin:0; font-size:14px; color:var(--muted); line-height:1.5}
+  .growth i{font-style:italic; color:var(--text)}
+  .score{margin:4px 0 0; font-size:56px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums}
+  .score small{font-size:22px; font-weight:600; color:var(--muted); letter-spacing:0}
+  .score-verdict{margin:0; font-size:16px}
+  .recap{border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .recap-row{display:grid; grid-template-columns:40px 1fr; align-items:center; gap:12px; padding:10px 12px; border-top:1px solid var(--line)}
+  .recap-row:first-child{border-top:0}
+  .pts{
+    height:30px; border-radius:4px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px; color:#fff; background:var(--green); font-variant-numeric:tabular-nums;
+  }
+  .pts.mid{background:var(--yellow)}
+  .pts.zero{background:var(--grey)}
+  .recap-name{font-weight:600; min-width:0; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+  .recap-name small{display:block; font-weight:400; color:var(--text); font-size:15px; line-height:1.35; text-transform:none; letter-spacing:0; margin-top:2px; overflow-wrap:anywhere}
+  .share-hint{margin:0; font-size:13px; color:var(--muted)}
+  .next{margin:6px 0 0; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .textlink{color:var(--text); text-decoration:underline; text-underline-offset:3px}
+
+  .crosslink{margin:12px 0 0; padding-top:16px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+  .crosslink a{color:var(--text)}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed; top:72px; left:50%; transform:translateX(-50%); z-index:20;
+    max-width:calc(100% - 32px); padding:10px 16px; border-radius:6px;
+    background:var(--toast-bg); color:var(--toast-text); font-size:14px; font-weight:600; text-align:center;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .toast.show{opacity:1}
+
+  /* ---------- modals ---------- */
+  .modal{position:fixed; inset:0; z-index:30; background:var(--scrim); display:flex; align-items:center; justify-content:center; padding:16px}
+  .modal-card{
+    position:relative; width:100%; max-width:440px; max-height:90vh; overflow:auto;
+    background:var(--bg); color:var(--text); border-radius:10px; padding:22px 22px 24px;
+    box-shadow:0 12px 40px rgba(0,0,0,.25);
+  }
+  .modal-card h2{margin:0 0 14px; font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase}
+  .modal-card h2 + h2, .modal-card .statrow + h2{margin-top:18px}
+  .modal-card p{margin:0 0 10px; font-size:15px}
+  .modal-card p:last-child{margin-bottom:0}
+  .modal-card p i{font-style:italic}
+  .close{position:absolute; top:10px; right:10px}
+  .steps{margin:0 0 10px; padding-left:18px; font-size:15px}
+  .steps li{margin-bottom:6px}
+  .legend{display:flex; flex-direction:column; gap:8px; margin:12px 0 14px}
+  .legend div{display:flex; align-items:center; gap:10px; font-size:14px}
+  .legend .cell{flex:none; width:56px; height:34px}
+  .pointsline{display:flex; gap:6px; margin:4px 0 12px}
+  .pointsline span{
+    flex:1; text-align:center; padding:6px 0; border-radius:4px; background:var(--surface);
+    font-size:13px; font-weight:700; font-variant-numeric:tabular-nums;
+  }
+  .pointsline span small{display:block; font-weight:500; color:var(--muted); font-size:11px}
+  .statrow{display:flex; gap:8px; margin-bottom:14px}
+  .stat{flex:1; text-align:center}
+  .stat b{display:block; font-size:28px; font-weight:800; line-height:1.1; font-variant-numeric:tabular-nums}
+  .stat span{font-size:11px; color:var(--muted); line-height:1.2; display:block; margin-top:2px}
+  .log{display:flex; flex-direction:column}
+  .log-item{border-top:1px solid var(--line); padding:10px 0}
+  .log-item:last-child{padding-bottom:0}
+  .log-meta{margin:0 0 3px; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .log-text{margin:0; font-size:14px; line-height:1.45; overflow-wrap:anywhere}
+  .log-empty{margin:0; font-size:14px; color:var(--muted)}
+
+  @keyframes fadeIn{from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none}}
+  .fresh{animation:fadeIn .35s ease-out}
+  @media (prefers-reduced-motion: reduce){
+    .fresh{animation:none}
+    .toast, .ball{transition:none}
+  }
+  @media (max-width:400px){
+    .layer-q{font-size:24px}
+    .prompt-text{font-size:18px}
+    .final{font-size:20px}
+    .score{font-size:48px}
+    .cell span{font-size:9px; letter-spacing:.03em}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon" id="btnHelp" type="button" aria-label="How to play"><span class="q">?</span></button>
+  <h1 class="wordmark">Snow<span>ball</span></h1>
+  <button class="icon" id="btnStats" type="button" aria-label="My snowballs and statistics">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+      <path d="M5 20V10M12 20V4M19 20v-7"/>
+    </svg>
+  </button>
+</header>
+
+<main class="game">
+  <p class="dateline" id="dateline"></p>
+  <p class="note" id="practiceNote" hidden></p>
+
+  <div class="strip" aria-label="Today's layers">
+    <div class="ball" id="ball" aria-live="polite" aria-label="0 words">0</div>
+    <div class="cells" id="cells"></div>
+  </div>
+
+  <section class="prompt" aria-label="Today's topic">
+    <p class="prompt-label">Today's topic</p>
+    <p class="prompt-text" id="topicText"></p>
+    <p class="prompt-sub" id="swapWrap"><button class="linkbtn" id="btnSwap" type="button">Doesn't fit your life? Swap the topic</button></p>
+  </section>
+
+  <section class="step" id="stepStart">
+    <p class="lead">Write one short, true sentence about you — 3 to 8 words. You'll grow it in a minute.</p>
+    <form class="entry" id="startForm" autocomplete="off">
+      <input id="startInput" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="true" placeholder="" aria-label="Your starting sentence" maxlength="120">
+      <button class="primary" id="btnStart" type="submit">Start</button>
+    </form>
+  </section>
+
+  <section class="step" id="stepLayer" hidden>
+    <div class="layer" id="layerCard">
+      <p class="layer-label" id="layerLabel"></p>
+      <p class="layer-q" id="layerQ"></p>
+      <p class="layer-inst" id="layerInst"></p>
+      <div class="examples" id="layerEx" aria-label="Examples"></div>
+      <p class="tip" id="layerTip"></p>
+    </div>
+
+    <div class="sofar" aria-live="polite">
+      <p class="sofar-label" id="sofarLabel"></p>
+      <p class="sofar-text" id="sofarText"></p>
+    </div>
+
+    <form class="grow" id="growForm">
+      <textarea id="growInput" rows="3" aria-label="Your sentence with the new layer added" spellcheck="true" autocapitalize="sentences" maxlength="600"></textarea>
+      <div class="grow-row">
+        <span class="count" id="growCount"></span>
+        <button class="linkbtn" id="btnReset" type="button">Start this layer again</button>
+        <button class="primary" id="btnAdd" type="submit">Add it</button>
+      </div>
+    </form>
+
+    <div class="nudge" id="nudge" hidden aria-live="polite">
+      <p class="nudge-text" id="nudgeText"></p>
+      <div class="actions">
+        <button class="primary grow" id="btnKeepEditing" type="button">Keep editing</button>
+        <button class="secondary" id="btnOverride" type="button">It's there — count it</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="summary" id="stepDone" hidden>
+    <p class="verdict">Your snowball</p>
+    <p class="final" id="finalText"></p>
+    <p class="growth" id="growthLine"></p>
+    <p class="score"><span id="scoreNum">0</span> <small>/ 50</small></p>
+    <p class="score-verdict" id="scoreVerdict"></p>
+    <div class="recap" id="recap"></div>
+    <div class="actions">
+      <button class="primary grow" id="btnShare" type="button">Share</button>
+      <button class="secondary" id="btnStats2" type="button">My snowballs</button>
+    </div>
+    <p class="share-hint">Share copies the sentence too — send it to your teacher for a look.</p>
+    <p class="next" id="nextLine"></p>
+  </section>
+
+  <p class="crosslink">Part of <a href="index.html">C2Everyday</a> — five American expressions a day.</p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="modalHelp" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <button class="icon close" id="closeHelp" type="button" aria-label="Close">✕</button>
+    <h2 id="helpTitle">How to play</h2>
+    <ol class="steps">
+      <li>Today's topic is something from your life. Write one short, true sentence about it — 3 to 8 words. <i>I drink coffee.</i></li>
+      <li>Add five layers, one at a time: <b>when</b>, <b>where</b>, <b>why</b>, <b>who with</b>, <b>but…</b> and so on. Each time, rewrite the whole sentence with the new part inside it. Move things around if it sounds better that way.</li>
+      <li>After five layers you have one long, real sentence about your life. Share it — the share text includes the sentence, so you can send it to your teacher.</li>
+    </ol>
+    <p>Each layer starts at 10 points. If the game can't spot the layer in your sentence, it loses 2 — fix the sentence, or tell the game it's there.</p>
+    <div class="pointsline">
+      <span>10<small>1st try</small></span><span>8<small>2nd</small></span><span>6<small>3rd</small></span><span>4<small>4th</small></span><span>2<small>5th</small></span>
+    </div>
+    <div class="legend">
+      <div><span class="cell hi"><b>10</b><span>when</span></span> The game found your layer</div>
+      <div><span class="cell mid"><b>8</b><span>when</span></span> You said it's there — your call</div>
+    </div>
+    <p>A new topic and a new mix of layers every day at midnight. If the topic doesn't fit your life, you can swap it once.</p>
+  </div>
+</div>
+
+<div class="modal" id="modalStats" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+    <button class="icon close" id="closeStats" type="button" aria-label="Close">✕</button>
+    <h2 id="statsTitle">Statistics</h2>
+    <div class="statrow">
+      <div class="stat"><b id="stPlayed">0</b><span>Days played</span></div>
+      <div class="stat"><b id="stAvg">0</b><span>Average score</span></div>
+      <div class="stat"><b id="stBest">0</b><span>Best day</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>Day streak</span></div>
+    </div>
+    <div class="statrow">
+      <div class="stat"><b id="stWords">0</b><span>Average length (words)</span></div>
+      <div class="stat"><b id="stLongest">0</b><span>Longest snowball</span></div>
+    </div>
+    <h2>My snowballs</h2>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     SETTINGS
+     ===================================================================== */
+  var SITE_NAME  = 'Snowball';
+  var START_DATE = '2026-09-16';          // Day #1 (local time)
+  var ROUNDS     = 5;                     // layers per day
+  var POINTS     = [10, 8, 6, 4, 2];      // points for a layer found on the 1st, 2nd, 3rd, 4th, 5th try
+  var START_MIN  = 2, START_MAX = 10;     // words allowed in the starting sentence
+
+  /* =====================================================================
+     TOPICS — one per day, in order; when the list runs out it starts over.
+       t  – the topic, shown on the card
+       eg – an example starting sentence (shown faintly in the box)
+     Add new topics at the END so past days don't change.
+     ===================================================================== */
+  var TOPICS = [
+    { t: "Something you do most mornings", eg: "I drink coffee." },
+    { t: "How you get to work or school", eg: "I take the bus." },
+    { t: "What you usually eat for lunch", eg: "I eat noodles." },
+    { t: "Something you do to relax", eg: "I watch TV." },
+    { t: "A habit you'd like to change", eg: "I check my phone." },
+    { t: "Your typical Sunday", eg: "I sleep late." },
+    { t: "Your phone", eg: "I use my phone a lot." },
+    { t: "A place in your city you like", eg: "I go to the park." },
+    { t: "Something you cook", eg: "I make soup." },
+    { t: "Your job or your studies", eg: "I teach children." },
+    { t: "Your English", eg: "I study English." },
+    { t: "Something you did last weekend", eg: "I visited my parents." },
+    { t: "Music in your life", eg: "I listen to music." },
+    { t: "Something you're planning to do this week", eg: "I'm meeting a friend." },
+    { t: "Your home", eg: "I live in a flat." },
+    { t: "Your evenings", eg: "I cook dinner." },
+    { t: "Exercise or sport", eg: "I go running." },
+    { t: "Shopping", eg: "I buy groceries." },
+    { t: "Your family", eg: "I call my mother." },
+    { t: "A friend", eg: "I text my best friend." },
+    { t: "Something you always forget", eg: "I forget my keys." },
+    { t: "The weather today", eg: "It's raining." },
+    { t: "What you do right before bed", eg: "I read a book." },
+    { t: "Coffee, tea, or something else", eg: "I drink tea." },
+    { t: "A skill you're learning", eg: "I'm learning to drive." },
+    { t: "Your hometown", eg: "I grew up in a small town." },
+    { t: "Books, films, or series", eg: "I watch series." },
+    { t: "Social media", eg: "I scroll Instagram." },
+    { t: "A chore you don't enjoy", eg: "I wash the dishes." },
+    { t: "Something that made you laugh recently", eg: "My cat fell off the sofa." },
+    { t: "Something you're good at", eg: "I'm good at baking." },
+    { t: "Your journey home", eg: "I walk home." },
+    { t: "A trip you've taken", eg: "I went to Bali." },
+    { t: "Something you spend money on", eg: "I buy books." },
+    { t: "Your neighbors", eg: "My neighbor plays the piano." },
+    { t: "Breakfast", eg: "I skip breakfast." },
+    { t: "The last thing you bought", eg: "I bought a lamp." },
+    { t: "A person you admire", eg: "I admire my grandmother." },
+    { t: "Your lunch break", eg: "I eat at my desk." },
+    { t: "Something you're looking forward to", eg: "I'm going on holiday." },
+    { t: "Your desk or workspace", eg: "My desk is messy." },
+    { t: "A small pleasure", eg: "I love fresh bread." },
+    { t: "Something you avoid", eg: "I avoid the gym." },
+    { t: "Your first hour at work", eg: "I check my email." },
+    { t: "A habit you're proud of", eg: "I walk every day." },
+    { t: "Pets or animals", eg: "I have a dog." },
+    { t: "Your favorite app", eg: "I use Duolingo." },
+    { t: "Something you did today", eg: "I had a meeting." },
+    { t: "A family tradition", eg: "We eat together on Sundays." },
+    { t: "Your city", eg: "My city is huge." },
+    { t: "Your weekend plans", eg: "I'm staying home." },
+    { t: "Something you can't live without", eg: "I need my headphones." }
+  ];
+
+  /* =====================================================================
+     LAYERS — everything the player can be asked to add.
+       label – short name in the strip (keep it to one short word)
+       q     – the question, shown big
+       inst  – what to add
+       ex    – example phrases
+       tip   – a grammar note for B2
+       re    – patterns the game looks for (a layer counts when a NEW
+               match appears that wasn't in the previous sentence)
+     ===================================================================== */
+  var LY_EXCLUDE = ('only early family daily weekly monthly yearly hourly nightly quarterly likely unlikely lonely lovely friendly unfriendly ' +
+    'silly ugly holy italy sicily july reply apply supply fly rely imply comply multiply belly jelly bully ally rally valley trolley alley volley ' +
+    'pulley medley motley parsley barley paisley holly polly molly sally billy lily dolly folly jolly wholly gully butterfly dragonfly firefly assembly ' +
+    'melancholy anomaly usually rarely occasionally normally generally typically finally lately recently currently really actually probably ' +
+    'possibly definitely certainly obviously basically mostly mainly partly largely nearly hardly barely merely especially particularly exactly ' +
+    'absolutely totally completely entirely utterly extremely incredibly terribly awfully fairly relatively comparatively slightly overly ' +
+    'increasingly constantly continually continuously permanently temporarily momentarily oily chilly hilly curly elderly orderly disorderly timely ' +
+    'untimely costly deadly lively sly honestly literally roughly approximately unfortunately fortunately luckily hopefully sadly surprisingly ' +
+    'apparently namely frankly seriously thankfully ideally eventually immediately originally initially previously formerly ultimately personally ' +
+    'admittedly supposedly presumably clearly truly surely simply ironically strangely oddly funnily technically officially unofficially ' +
+    'practically virtually gradually suddenly measly grizzly bristly prickly sparkly wobbly smelly woolly bubbly cuddly burly surly pearly gnarly ' +
+    'manly womanly kingly princely ghastly beastly saintly worldly heavenly cowardly scholarly brotherly sisterly motherly fatherly homely comely ' +
+    'ghostly portly sickly goodly duly ally belly').split(' ').reduce(function (o, w) { o[w] = true; return o; }, {});
+
+  var LAYERS = {
+    when: {
+      label: 'when', q: 'When?',
+      inst: 'Add when it happens: a time, a day, or before or after something else.',
+      ex: ['before work', 'at around seven', 'as soon as I wake up', 'on weekday mornings'],
+      tip: 'Time phrases can open or close the sentence: <i>Before work, I…</i> or <i>I… before work.</i>',
+      miss: 'a <b>time</b> phrase',
+      re: [
+        /\b(before|after|during|until|till|since|while|whenever|as soon as|the moment|by the time|right after|right before|just before|just after|straight after|the minute|the second|meanwhile|afterwards|beforehand|later|earlier|then|first|next|eventually|immediately|straight away|right away)\b/gi,
+        /\bwhen (i|we|you|he|she|they|it|my|our|the|there|everyone|nobody)\b/gi,
+        /\b(at|around|about|by|from|till|until|before|after|past)( around| about| roughly| exactly| just before| just after)?\s+(half past |quarter past |quarter to |a quarter to |a quarter past |ten past |ten to |twenty past |twenty to |five past |five to )?(\d{1,2}([:.]\d{2})?\s*(am|pm|a\.m\.|p\.m\.|o'?clock)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|noon|midnight|midday|dawn|sunrise|sunset|dusk|lunch(time)?|dinner(time)?|breakfast|bedtime|night|the weekend|the crack of dawn)( o'?clock| thirty| fifteen| forty-five|ish| ish)?\b/gi,
+        /\b(in the (morning|afternoon|evening|early morning|late afternoon|middle of the night|small hours)|at night|at the weekend|on (the )?weekends?|on (weekdays|weeknights|a weekday|a weeknight)|first thing|last thing|late at night|early in the morning|the (first|last) thing|at the end of the day|after (work|school|class|dinner|lunch|breakfast|hours)|before (work|school|class|dinner|lunch|breakfast|bed|dawn|sunrise)|on (my|the) way (home|to work|to school|there|back|in))\b/gi,
+        /\b(on|every|each|most|this|next|last|by|until|till) (monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/gi,
+        /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/gi,
+        /\b(today|tonight|tomorrow|yesterday|nowadays|these days|lately|recently|currently|at the moment|right now|for now|this (morning|afternoon|evening|week|weekend|month|year|summer|winter)|last (night|week|weekend|month|year|summer|winter|spring|autumn|fall)|next (week|month|year|summer|winter)|(a|an|one|two|three|four|five|six|ten|few|couple of|\d+) (minutes?|hours?|days?|weeks?|months?|years?) ago|(january|february|march|april|june|july|august|september|october|november|december)|in (spring|summer|autumn|fall|winter|20\d\d|19\d\d|the (spring|summer|autumn|fall|winter))|(early|mid|late) (morning|afternoon|evening)|mid-?morning|mid-?afternoon|midday|the other day|a while ago|ages ago|the whole (day|morning|evening|night|time|week|weekend)|all (day|morning|night|evening|afternoon|week|weekend)( long)?|((on|every|most|during|in the|at) (weekday |weekend |school |work |sunday |saturday |monday |friday )?)?(mornings|evenings|nights|afternoons|weekends|weekdays)|every (day|morning|evening|night|afternoon|week|weekend|month|year|other day))\b/gi
+      ]
+    },
+    where: {
+      label: 'where', q: 'Where?',
+      inst: 'Add where it happens — the room, the place, the town.',
+      ex: ['at my kitchen table', 'on the balcony', 'in a tiny café near my office', 'on the bus'],
+      tip: 'A place phrase usually comes after the verb and its object: <i>I read the news on the bus.</i>',
+      miss: 'a <b>place</b> phrase',
+      re: [
+        /\b(at|in|on|inside|outside|near|by|next to|beside|behind|opposite|across from|in front of|around|under|underneath|above|below|beneath|along|through|across|past|down|up|over|onto|into|towards|toward|out of|away from|off|round|outside of|within) (my|our|his|her|their|your|the|a|an|this|that|these|those|some|one of)\s+(?!(morning|afternoon|evening|night|end|start|beginning|weekend|weekends|weekday|weekdays|moment|same|time|times|day|days|week|weeks|month|months|year|years|last|first|meantime|past|future|age|middle of the night|quarter|half|hour|hours|minute|minutes|second|seconds|way|point|rush|hurry|mood|rate|least|most|all|whole|long run|process|habit|dark|silence|peace|spirit|hope|order|case|fact|sense|end of the day|beginning of|end of|middle of the|latest|earliest|meanwhile|other hand|one hand|meantime|phone|laptop|computer|internet|news|tv|radio|sofa so|couch so)\b)[a-zÀ-ɏ][a-zÀ-ɏ'-]*/gi,
+        /\b(home|at home|at work|in bed|in town|downtown|uptown|upstairs|downstairs|indoors|outdoors|outside|inside|abroad|overseas|online|offline|nearby|next door|around the corner|down the (street|road|hall|corridor)|up the (street|road|hill)|here|there|everywhere|anywhere|somewhere|nowhere|on the (road|move|go|train|bus|subway|metro|tram|tube|ferry|beach|balcony|sofa|couch|floor|roof|rooftop|terrace|porch|patio|stairs|bench|corner|street|platform|pitch|court|field)|in the (car|kitchen|bathroom|bedroom|shower|bath|garden|yard|backyard|park|street|city|countryside|mountains|office|garage|lobby|gym|pool|library|station|corner|suburbs|centre|center|hall|hallway|corridor|elevator|lift|basement|attic|cellar|classroom|canteen|cafeteria|café|cafe|open air|fresh air|sun|shade|queue|line|middle of nowhere|woods|forest|hills|village|neighbou?rhood|old town|city centre|city center|back seat|front seat|driver's seat|waiting room|break room|meeting room|staff room|staffroom|shop|store|supermarket|market|mall)|kitchen|bedroom|bathroom|balcony|living room|dining room|garden|backyard|office|desk|gym|park|café|cafe|coffee shop|restaurant|bar|pub|canteen|cafeteria|classroom|campus|school|university|college|library|supermarket|market|mall|shop|store|station|airport|bus stop|bus|train|subway|metro|tram|taxi|car|bike|beach|lake|river|riverside|mountain|mountains|forest|village|town|city|neighbou?rhood|apartment|flat|house|room|sofa|couch|bed|table|window|windowsill|floor|rooftop|terrace|corridor|hallway|elevator|lift|stairs|street|road|highway|motorway|bridge|square|hospital|clinic|church|temple|mosque|bank|hotel|hostel|studio|lab|factory|warehouse|farm|field|stadium|court|pitch|track|pool|sea|seaside|ocean|coast|island|zoo|museum|cinema|theatre|theater|gallery|salon|barber|pharmacy|post office|city (centre|center)|old town|countryside|suburbs|parking lot|car park|garage|doorstep|porch|patio|driveway|dorm|dormitory|hometown|home town|homeland|country)\b/gi,
+        /\b(in|at|near|around|outside|across|through|along|from|towards|toward|inside|opposite|behind|beside) (?!I\b|I'm|I've|I'll|I'd|English|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|Christmas|Easter|Ramadan|God|Netflix|YouTube|TikTok|Instagram|Facebook|WhatsApp|WeChat|Zoom|Duolingo|Spotify|Google|Excel|Word|PowerPoint|Chrome|Safari|Uber|Grab|Telegram|Twitter|Reddit|Snowball)[A-Z][a-zA-Z'-]+/g
+      ]
+    },
+    why: {
+      label: 'why', q: 'Why?',
+      inst: 'Add the reason — or the purpose.',
+      ex: ["because it's the only quiet moment of the day", 'so that I can think', 'to wake myself up', "since nobody else is awake"],
+      tip: '<b>because</b> gives a reason; <b>so that</b> and <b>to</b> + verb give a purpose. Both work here.',
+      miss: 'a <b>reason</b> or <b>purpose</b>',
+      re: [
+        /\b(because|because of|since (i|we|you|he|she|they|it|my|our|there|nobody|everyone|no one|that's|it's|there's)|(?<!\bas [a-z]+ )as (i|we|you|he|she|they|it|my|our|there|nobody|everyone|no one)( |'m|'re|'s|'ve|'d|'ll)|so that|in order (to|not to)|due to|thanks to|owing to|for the sake of|that's why|that is why|which is why|the reason (is|being|why|i|we)|the (main|only|real|simple) reason|for (a|the) (simple |same |only |good |very good )?reason|out of (habit|boredom|curiosity|necessity|politeness|guilt|laziness|fear|respect|love|interest|pure)|for fun|for (my|the|our|her|his|their) (own )?(health|sanity|job|work|kids|children|family|money|exercise|peace|sake|future|career|studies|exams?|body|mind|brain|skin|mood|energy|benefit)|for a living|to (avoid|save|keep|stay|get|make|earn|clear|wake|help|improve|practise|practice|learn|prepare|catch|escape|relax|calm|remind|force|stop|lose|gain|kill|start|finish|feel|be able|be ready|have|see|check|reach|pay|buy|find|meet|show|prove|give|support|enjoy|spend|survive|cope|recharge|unwind|switch off|wind down|warm up|cool down|clear my head|get rid of|get through|get out of|get away|get some|get a|make sure|make it|look|stretch|boost|build|fix|protect|please|impress|treat|reward|celebrate|forget|remember|concentrate|focus|think|breathe|move|burn|kickstart|set up)\b|so (i|we|you|he|she|they|it) (can|could|don't|do not|won't|will|would|have|get|am|'m|'ll|'d|'ve|doesn't|does not|didn't|did not|wouldn't|couldn't))\b/gi
+      ]
+    },
+    who: {
+      label: 'who', q: 'Who with?',
+      inst: "Add who's there — or say that nobody is.",
+      ex: ['with my husband', 'alone', 'while my daughter watches cartoons', 'with a colleague from the sales team'],
+      tip: 'Give the person a detail: not <i>a friend</i> but <i>an old friend from university</i>.',
+      miss: 'a <b>person</b> (or <b>alone</b>)',
+      re: [
+        /\b(with|without|together with|alongside|next to|beside|opposite|in front of|behind) (my|our|his|her|their|your|a|an|the|some|two|three|four|five|several|a few|a couple of|all|both|one of|none of|everyone|everybody|nobody|no one|someone|somebody|anyone|friends|colleagues|coworkers|co-workers|people|strangers|kids|children|family|mum|mom|dad|grandma|grandpa|clients|customers|students|teachers|neighbou?rs|whoever|anybody)\b/gi,
+        /\b(alone|on my own|by myself|all by myself|with nobody|with no one|solo|in company|surrounded by|accompanied by|in good company|just me|just the two of us|the two of us|the three of us|as a family|as a couple|as a team|as a group|in a group|in a team|in pairs|with company)\b/gi,
+        /\b(my|our|his|her|their) (wife|husband|partner|boyfriend|girlfriend|fiancé|fiancée|fiance|fiancee|mom|mum|mother|dad|father|parents|sister|brother|sisters|brothers|siblings|son|daughter|sons|daughters|kids|children|baby|toddler|teenager|teenagers|family|in-laws|mother-in-law|father-in-law|grandma|grandpa|granny|nan|grandmother|grandfather|grandparents|aunt|uncle|cousin|cousins|niece|nephew|friend|friends|best friend|old friend|mate|mates|buddy|buddies|colleague|colleagues|coworker|coworkers|co-worker|co-workers|boss|manager|team|teammates|teacher|teachers|tutor|students|classmates|neighbou?rs?|roommate|roommates|flatmate|flatmates|housemate|housemates|landlord|landlady|dog|cat|dogs|cats|puppy|kitten|pet|pets|client|clients|customers|assistant|nanny|driver|doctor|barista|trainer|coach|crew|gang|little one|little ones|other half|better half|ex)\b/gi,
+        /\b(everyone|everybody|nobody|no one|no-one|someone|somebody|anyone|a friend|an old friend|a colleague|a coworker|a co-worker|a neighbou?r|a stranger|strangers|the kids|the children|the whole family|the team|the guys|the girls|the boys|my people|the whole (office|class|team|family|group|gang|crew)|the other (teachers|parents|students|mums|moms|dads|girls|guys))\b/gi
+      ]
+    },
+    how: {
+      label: 'how', q: 'How?',
+      inst: 'Add how you do it — the manner, the speed, the mood, or the means.',
+      ex: ['slowly', 'half asleep', 'on foot', 'with my headphones on'],
+      tip: 'Manner adverbs go after the verb (<i>I walk slowly</i>) or at the very start (<i>Slowly, I…</i>).',
+      miss: 'a <b>how</b> phrase (manner, speed, mood, or means)',
+      exclude: LY_EXCLUDE,
+      re: [
+        /\b[a-z]{2,}ly\b/gi,
+        /\b(by (bike|bicycle|bus|car|train|tram|taxi|subway|metro|foot|hand|phone|scooter|motorbike|heart|ear|myself|accident|mistake|habit|candlelight)|on foot|on (my|the) (bike|scooter|phone|laptop|tablet|computer)|in a (hurry|rush|panic|good mood|bad mood|whisper|low voice|loud voice|daze|trance)|in silence|in peace|in (my|our|the) (own|usual|same|normal|typical|old|traditional|lazy|quick) (way|style|manner)|with (care|ease|difficulty|pleasure|enthusiasm|effort|energy|passion|patience|confidence|a smile|a frown|a sigh|a yawn|a groan|a laugh|a coffee|a spoon|a fork|chopsticks|both hands|one hand|one eye open|my eyes (half )?(closed|shut|open)|my headphones (on|in)|my earphones in|the (tv|radio|music|news|podcast|lights?|curtains|window|windows|door) (on|off|open|closed|blaring|playing)|no (sugar|milk|plan|effort|rush|shoes|socks|makeup|make-up)|(a lot of|lots of|too much|plenty of|extra|some) (sugar|milk|butter|salt|noise|effort|energy|enthusiasm|patience))|as (fast|quickly|slowly|quietly|carefully|gently|loudly|well|hard|early|late|much|neatly|badly|softly) as (i|we|possible|i can|she|he|they|humanly possible|i can manage)|(very|really|quite|pretty|extremely|incredibly|super|so|too|a bit|slightly|fairly|rather|surprisingly|painfully|ridiculously|unbelievably) (fast|slow|quiet|quietly|loud|loudly|careful|carefully|hard|gently|badly|well|slowly|quickly|carelessly|thoroughly|neatly|lazily|sloppily|softly|roughly)|fast|slow|hard|well|badly|loud|aloud|out loud|step by step|little by little|bit by bit|one by one|one at a time|half asleep|half awake|wide awake|on autopilot|without (thinking|looking|stopping|complaining|talking|speaking|a word|a break|any (help|effort|breakfast|coffee|sugar|milk|music|noise|complaint|plan|rush)|even (looking|thinking|noticing|trying|realising|realizing|blinking))|barefoot|in (my )?(pyjamas|pajamas|pjs|slippers|a dressing gown|a bathrobe|my uniform|my suit|a suit|jeans|heels|trainers|sneakers|gym clothes|a hoodie|a coat|my coat)|standing up|sitting down|lying down|from memory|off by heart|by heart|nonstop|non-stop|straight|properly|neatly|the (hard|easy|wrong|right|old-fashioned|lazy|quick|proper|same|usual|traditional|old|slow|long|short|scenic) way|like a [a-z]+|as if (i|we|it|she|he|they|nothing|nobody|my|the|there)|as though|in (english|chinese|mandarin|russian|spanish|french|german|japanese|korean|vietnamese|portuguese|italian|arabic|hindi|turkish|polish|ukrainian|two languages|my (own|native|first|second) language)|at (full|top|half|walking|a snail's|my own|breakneck|lightning) (speed|pace|volume)|(head|feet|face) first|hands-free|with (my|one|both) (hands?|feet|thumbs?|elbows?)|in (bulk|batches|one go|small doses|secret|private|public|style|comfort|full|detail|advance|record time|slow motion|no time|a flash)|on (purpose|mute|loud|repeat|speaker|speakerphone|video|impulse|instinct|principle|schedule|the go|the move|the run|a whim|a full stomach|an empty stomach)|under (pressure|protest|the covers|a blanket|the duvet)|over (the phone|video|zoom|facetime|whatsapp|wechat|text|email|coffee|breakfast|lunch|dinner|a beer|a glass|drinks))\b/gi
+      ]
+    },
+    howoften: {
+      label: 'often', q: 'How often?',
+      inst: 'Add how often this happens.',
+      ex: ['almost every day', 'twice a week', 'hardly ever', 'whenever I have time'],
+      tip: 'One-word adverbs (<i>usually, rarely</i>) go before the main verb; longer phrases (<i>twice a week</i>) go at the end.',
+      miss: 'a <b>frequency</b> phrase',
+      re: [
+        /\b(always|usually|normally|generally|typically|often|frequently|regularly|sometimes|occasionally|rarely|seldom|hardly ever|never|almost (always|never|every)|nearly (always|every)|constantly|all the time|every (day|morning|evening|night|afternoon|week|weekend|month|year|other (day|week|weekend|month)|single (day|morning|evening|night|week|weekend)|now and (then|again)|time|second|chance|few (days|weeks|hours|months))|(once|twice|three times|four times|five times|several times|a few times|many times|a couple of times|\d+ times) (a|per|every) (day|morning|week|month|year|weekend)|once in a while|once in a blue moon|from time to time|now and then|now and again|daily|weekly|monthly|yearly|annually|(most|some|many) (days|mornings|evenings|nights|weekends|weeks|months|years)|on (weekdays|weeknights|weekends|mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays)|whenever (i|we|she|he|they|there's|there is|i've|i'm|possible)|as often as|more often than not|on a (daily|weekly|monthly|regular) basis|each (day|morning|evening|week|weekend|month|year|time)|day after day|day in,? day out|week after week|\d+% of the time|(three|four|five|six|seven) (days|nights|mornings|evenings) a week|at least (once|twice|[a-z]+ times)|(once|twice) or (twice|three times)|(ninety|eighty|seventy|sixty|fifty|forty|thirty|twenty|ten) percent of the time|not very often|not often|every so often|every now and then|once in a while)\b/gi
+      ]
+    },
+    contrast: {
+      label: 'but', q: 'But…?',
+      inst: 'Add a contrast or a surprise: although, even though, but, whereas.',
+      ex: ["although I'm never really hungry", 'even though I should be sleeping', "but only when it's raining", 'whereas my sister prefers tea'],
+      tip: '<b>Although</b> and <b>even though</b> start a clause with a subject and a verb; <b>despite</b> is followed by a noun or an <i>-ing</i> form.',
+      miss: 'a <b>contrast</b> (although, even though, but, whereas…)',
+      re: [
+        /\b(although|though|even though|even if|even so|but|yet|however|whereas|while (i|we|you|he|she|they|it|my|our|the|most|some|everyone|nobody|other)|despite|in spite of|still|on the other hand|nevertheless|nonetheless|and yet|except (for|that|when|on|if|at|in)|apart from|other than|instead of|rather than|otherwise|unlike|contrary to|no matter (how|what|when|where|who|which)|regardless of|much as|as much as (i|we|she|he|they)|then again|mind you|admittedly|that said|having said that|the (only|one) (problem|catch|downside|drawback|thing|trouble) (is|being|with)|which isn't|which is not|which doesn't|which does not|which never|but never|but only|but not|not that (i|we|it|anyone)|at least|sadly not|unfortunately not|only when|only if|whether or not|either way|anyway|in theory|in practice|on paper|in reality|supposedly|ironically|surprisingly|strangely|oddly|funnily enough|of course|to be fair|granted)\b/gi
+      ]
+    },
+    relative: {
+      label: 'which', q: 'Which…?',
+      inst: 'Add a detail with a relative clause: which, who, where, that.',
+      ex: ['which my mother gave me', 'who lives across the hall', 'where the coffee is terrible', 'that I bought in Tokyo'],
+      tip: 'Commas around the clause mean extra information: <i>My desk, which faces the window, …</i> No commas means it identifies which one: <i>the mug that I bought in Tokyo</i>.',
+      miss: 'a <b>relative clause</b> (which, who, where, that…)',
+      re: [
+        /\b(which|whose|whom)\b/gi,
+        /,\s*(who|where|when)\b/gi,
+        /\b(the|a|an|my|our|his|her|their|this|that|these|those|some|every|one|each|any|no|two|three|several|few|both|another|other|same|only|first|last|next|best|worst|little|old|new)\s+(?!so\b|because\b|that\b)(?:[a-zÀ-ɏ'-]+\s+){1,2}?(?:that|where|when|who|whose|in which|on which|at which)\s+(?:i|we|you|he|she|they|it|my|our|his|her|their|there|the|a|an|this|these|those|some|every|no|all|both|people|is|are|was|were|has|have|had|does|do|did|can|could|will|would|never|always|usually|often|sometimes|still|also|just|really|nobody|everyone|someone|somebody|most|[a-z]+s|[a-z]+ed|[a-z]+ing)\b/gi,
+        /\bwho (is|was|has|had|does|did|can|will|would|lives|works|makes|sells|serves|keeps|runs|owns|teaches|plays|sits|looks|sounds|costs|takes|helps|drives|talks|never|always|usually|still|only|just|used to|loves|hates|thinks|knows|refuses|insists|wakes|gets|comes|goes|opens|closes|starts|ends|stays|seems|feels|reminds|means|belongs|happens|lets|brings|gives|leaves|sends|calls|texts|[a-z]+s)\b/gi,
+        /\bthat (lives|works|makes|sells|serves|keeps|runs|owns|teaches|plays|sits|looks|sounds|smells|tastes|costs|helps|drives|never|always|usually|only|loves|hates|refuses|insists|wakes|gets|comes|goes|opens|closes|starts|ends|stays|seems|reminds|belongs|lets|brings|gives|leaves|sends|used to)\b/gi
+      ]
+    },
+    condition: {
+      label: 'if', q: 'If…?',
+      inst: 'Add a condition: if, unless, as long as, in case.',
+      ex: ['if I wake up early enough', "unless it's raining", 'as long as nobody calls me', 'in case I get hungry later'],
+      tip: '<b>Unless</b> means <i>if not</i>: <i>unless it rains</i> = <i>if it doesn\'t rain</i>. <b>In case</b> is for a precaution, not a condition.',
+      miss: 'a <b>condition</b> (if, unless, as long as…)',
+      re: [
+        /\b((?<!as )if|unless|as long as|so long as|provided( that)?|providing( that)?|in case|in case of|on condition that|only if|even if|if not|otherwise|if necessary|if possible|if needed|depending on|should (i|we|it|she|he|they|there|anyone|anything|the)|were (i|it|she|he|they|we) to|in the event (of|that)|supposing|suppose|assuming|just in case|what if|whenever (i|we|she|he|they|it|there|possible|necessary))\b/gi
+      ]
+    },
+    result: {
+      label: 'so', q: 'So…?',
+      inst: 'Add a result or a consequence: so, which means, as a result.',
+      ex: ["so I'm always the first one in", 'which means I never see the sunrise', 'so that by nine I\'m wide awake', 'and as a result my desk is a mess'],
+      tip: '<i>, so…</i> and <i>, which means…</i> attach to the end of a clause with a comma.',
+      miss: 'a <b>result</b> (so, which means, as a result…)',
+      re: [
+        /\b(so (i|we|you|he|she|they|it|my|our|the|there|now|by|most|every|nobody|everyone|nothing|everything|when|at|in|on|before|after|during)\b(?! (can|could|don't|do not|won't|will|would|doesn't|does not|didn't|did not|wouldn't|couldn't|have to|get to|am able))|as a result|as a consequence|which means|which meant|that means|that's why|that is why|therefore|consequently|hence|thus|meaning (that|i|we|it|my|the|there)|and (so|then|now|therefore|that's|this|thus|hence)\b|leaving (me|us|the|my)|making (me|us|it|the|my)|which (makes|leaves|keeps|gives|explains|causes|saves|helps|forces|allows|lets|leads|results|ends|turns|puts|costs|takes|wakes|sends|ruins|wrecks|kills|drains)|in the end|end(s|ed)? up|ending up|resulting in|with the result that|the result (is|being|was)|and (i|we) (end|ended) up|so much (so )?that|such (a|an) [a-z]+ that|too [a-z]+ to|[a-z]+ enough to|that's how|which is how|which is why|and (now|then) (i|we|it|my|the|there)|no wonder|hence why)\b/gi
+      ]
+    },
+    feeling: {
+      label: 'feel', q: 'How do you feel about it?',
+      inst: 'Add your opinion or your feeling about it.',
+      ex: ['which I secretly love', "and honestly it's the best part of my day", 'even though I find it boring', 'which drives me crazy'],
+      tip: 'Strong B2 options: <i>I can\'t stand…</i>, <i>I don\'t mind…</i>, <i>I look forward to…</i>, <i>it drives me crazy</i>, <i>it\'s a pain</i>.',
+      miss: 'an <b>opinion</b> or <b>feeling</b>',
+      re: [
+        /\b(love|loves|loved|hate|hates|hated|enjoy|enjoys|adore|can't stand|cannot stand|can't bear|don't mind|do not mind|prefer|would rather|look forward to|looking forward to|(am|i'm|feel|feels|feeling|get|gets|getting|was|end up|ends up) (so |really |quite |pretty |a bit |a little |slightly |always |usually |absolutely |completely |totally |genuinely )?(glad|happy|sad|tired|exhausted|excited|nervous|anxious|relaxed|calm|bored|annoyed|frustrated|proud|grateful|thankful|lucky|stressed|pleased|delighted|disappointed|guilty|embarrassed|surprised|amazed|worried|scared|afraid|fed up|sick of|keen|thrilled|over the moon|content|miserable|cheerful|grumpy|moody|in a good mood|in a bad mood|obsessed|addicted|hooked|refreshed|energised|energized|alive|human|at peace|peaceful|sleepy|lazy|motivated|inspired|overwhelmed|homesick|lonely|cosy|cozy|comfortable|uncomfortable|awkward|ashamed|confident|hopeful|hopeless|relieved|impatient|restless|furious|angry|upset|touched|moved|blessed|spoiled|silly|ridiculous|productive|useless|guilty|free)|makes me (\w+)|drives me (crazy|mad|nuts|up the wall)|gets on my nerves|cheers me up|calms me down|stresses me out|wears me out|winds me up|keeps me sane|keeps me going|(is|was|are|'s|it's|that's|which is|which was) (so |really |quite |pretty |honestly |truly |absolutely |always |never |the |a |an |my )?(wonderful|terrible|awful|amazing|great|nice|fantastic|lovely|dreadful|brilliant|fun|boring|annoying|frustrating|relaxing|exhausting|stressful|satisfying|rewarding|peaceful|depressing|delightful|pleasant|unpleasant|pain|struggle|treat|joy|nightmare|chore|bliss|heaven|torture|the best|the worst|my favourite|my favorite|worth it|not worth it|magical|precious|sacred|hilarious|ridiculous|painful|highlight|luxury|pleasure|comfort|relief|disaster|mess|blessing|curse|waste of time|good for me|bad for me|embarrassing|awkward|cosy|cozy|comforting|soothing|calming|tiring|draining|refreshing|healthy|unhealthy|ideal|perfect)|(the )?(best|worst|favourite|favorite|happiest|hardest|nicest|most (relaxing|boring|annoying|enjoyable|satisfying|stressful|peaceful|beautiful|precious|important)) (part|moment|bit|thing|time|hour|minutes?) of (my|the)|honestly|to be honest|to be fair|frankly|sadly|luckily|thankfully|fortunately|unfortunately|which i (love|hate|enjoy|adore|can't stand|don't mind|find|secretly|absolutely|really|quite|never|always)|i (think|feel|believe|guess|suppose|must admit|have to say|must say|reckon|find it|find this|find that|wish|regret|miss|need|want|love|hate|enjoy|like|adore|prefer|can't stand|don't mind)|and i (love|hate|enjoy|adore|find)|what i (love|hate|enjoy|like|need|adore)|it's (great|wonderful|lovely|nice|awful|terrible|boring|annoying|relaxing|exhausting|a pain|the best|the worst|my favourite|my favorite|worth it|bliss|heaven|torture|amazing|brilliant|fun)|wonderful|terrible|awful|amazing|fantastic|lovely|dreadful|brilliant|boring|annoying|frustrating|relaxing|exhausting|stressful|satisfying|rewarding|peaceful|depressing|delightful|magical|hilarious|precious|blissful|glorious|miserable|comforting|soothing|draining|a pain|a struggle|a treat|a joy|a nightmare|a chore|a luxury|a pleasure|a relief|a disaster|a blessing|a waste of time)\b/gi
+      ]
+    },
+    compare: {
+      label: 'more', q: 'Compared with…?',
+      inst: 'Add a comparison: than, as … as, the most …',
+      ex: ['more slowly than anyone else in the office', "far earlier than I'd like", 'as often as I can', 'the strongest coffee in the building'],
+      tip: '<b>far / much / a lot</b> before a comparative adds strength: <i>far earlier</i>, <i>much more slowly</i>.',
+      miss: 'a <b>comparison</b> (than, as … as, the most…)',
+      re: [
+        /\b(than|(far|much|a lot|way|slightly|a bit|even|a little|so much|considerably|noticeably) (more|less|better|worse|[a-z]{3,}er)\b|as (?!soon|long|much as i|far as i)([a-z]+ )?as (i|we|you|he|she|they|it|my|our|possible|anyone|anybody|everyone|the|a|an|usual|ever|before|humanly)|the (most|least|best|worst|biggest|smallest|fastest|slowest|earliest|latest|longest|shortest|hardest|easiest|loudest|quietest|cheapest|strongest|oldest|youngest|busiest|laziest|happiest|healthiest|hottest|coldest|nicest|[a-z]{3,}est)\b|(more|less) and (more|less)|compared (to|with)|in comparison|unlike|just like|(the )?same (as|way)|similar to|different from|nothing like|(twice|half|three times|ten times|a hundred times) (as|more|the)|by far|nowhere near|the (second|third) (most|best|biggest|[a-z]+est)|as many as|as much as|as often as|as far as|not as [a-z]+ as|not so [a-z]+ as|equally|likewise|in contrast|whereas)\b/gi
+      ]
+    }
+  };
+
+  /* Which five layers, in which order, on which day. Phrases first,
+     clauses later, so the sentence builds up naturally. Day #1 uses the
+     first recipe, day #2 the second… then it loops. */
+  var RECIPES = [
+    ['when', 'where', 'why', 'who', 'contrast'],
+    ['howoften', 'where', 'who', 'how', 'relative'],
+    ['when', 'who', 'why', 'feeling', 'condition'],
+    ['where', 'how', 'why', 'contrast', 'compare'],
+    ['when', 'where', 'feeling', 'result', 'contrast'],
+    ['howoften', 'who', 'how', 'why', 'condition'],
+    ['when', 'where', 'who', 'result', 'relative'],
+    ['where', 'who', 'why', 'feeling', 'contrast'],
+    ['howoften', 'where', 'how', 'compare', 'relative'],
+    ['when', 'who', 'why', 'condition', 'result'],
+    ['where', 'when', 'how', 'feeling', 'relative'],
+    ['howoften', 'who', 'where', 'contrast', 'why']
+  ];
+
+  /* =====================================================================
+     GAME CODE — nothing below needs editing to add topics
+     ===================================================================== */
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY_STATE = 'sb:state:v1', KEY_STATS = 'sb:stats:v1', KEY_SEEN = 'sb:seenHelp:v1';
+
+  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+  // ---- which day is it?
+  function dayNumberFor(d) {
+    var parts = START_DATE.split('-').map(Number);
+    var start = Date.UTC(parts[0], parts[1] - 1, parts[2]);
+    var today = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((today - start) / 86400000);
+  }
+  var params = new URLSearchParams(location.search);
+  var practice = false, day;
+  if (params.has('p')) {                       // ?p=12  → preview day #12 (not saved)
+    var n = parseInt(params.get('p'), 10);
+    if (n >= 1) { day = n - 1; practice = true; }
+  } else if (params.has('date')) {             // ?date=2026-10-01 → preview that date
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(params.get('date'));
+    if (m) { day = Math.max(0, dayNumberFor(new Date(+m[1], +m[2] - 1, +m[3]))); practice = true; }
+  }
+  if (day === undefined) day = Math.max(0, dayNumberFor(new Date()));
+  var dayNo = day + 1;
+  var recipe = RECIPES[day % RECIPES.length];
+  var topicMain = day % TOPICS.length;
+  var topicAlt  = (day + 23) % TOPICS.length;
+
+  // ---- words and text
+  function prep(s) { return String(s).replace(/[’‘`]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim(); }
+  function wordsOf(s) { return prep(s).split(' ').filter(function (w) { return /[a-z0-9]/i.test(w); }); }
+  function norm(s) { return prep(s).toLowerCase().replace(/[^a-z0-9'\s]/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  // Every match of a layer's patterns in a text, in order of appearance
+  function matchesIn(layer, text) {
+    var out = [];
+    layer.re.forEach(function (re) {
+      re.lastIndex = 0;
+      var m;
+      while ((m = re.exec(text))) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        if (layer.exclude && layer.exclude[m[0].toLowerCase()]) continue;
+        out.push({ text: m[0], index: m.index });
+      }
+    });
+    out.sort(function (a, b) { return a.index - b.index; });
+    return out;
+  }
+  // The first match in `next` that is NEW compared with `prev` (so a word that
+  // was already there doesn't count twice)
+  function newMatch(layer, prev, next) {
+    var had = {};
+    matchesIn(layer, prep(prev)).forEach(function (m) { var k = m.text.toLowerCase(); had[k] = (had[k] || 0) + 1; });
+    var seen = {};
+    var list = matchesIn(layer, prep(next));
+    for (var i = 0; i < list.length; i++) {
+      var k = list[i].text.toLowerCase();
+      seen[k] = (seen[k] || 0) + 1;
+      if (seen[k] > (had[k] || 0)) return list[i].text;
+    }
+    return null;
+  }
+  // Stretch a detected fragment ("with my") to a readable phrase ("with my husband"):
+  // finish the current word, then take up to four more words, stopping at
+  // punctuation or at a word that usually starts another layer.
+  var STOP = /^(because|since|so|but|although|though|even|which|who|whose|where|when|whenever|if|unless|while|whereas|as|and|or|with|without|at|in|on|before|after|until|till|to|for|from|by|during|every|than|despite|instead|rather|except|apart|yet|however|otherwise|meaning|leaving|making|i|we|you|he|she|they|it)$/i;
+  function extend(sentence, frag) {
+    var s = prep(sentence), i = s.toLowerCase().indexOf(frag.toLowerCase());
+    if (i < 0) return frag;
+    var end = i + frag.length;
+    while (end < s.length && !/[\s,.;:!?]/.test(s[end])) end++;           // finish the word
+    var rest = s.slice(end), out = s.slice(i, end), taken = 0;
+    var m, re = /^(\s+)([^\s]+)/;
+    while (taken < 4 && (m = re.exec(rest))) {
+      var w = m[2], bare = w.replace(/[,.;:!?"']+$/g, '');
+      if (STOP.test(bare)) break;
+      out += m[1] + bare; taken++;
+      if (bare !== w) break;                                                // ended at punctuation
+      rest = rest.slice(m[0].length);
+    }
+    return out.replace(/[,.;:!?"']+$/g, '').trim();
+  }
+  // How much of the previous sentence survives in the new one (0–1)
+  function kept(prev, next) {
+    var pw = norm(prev).split(' ').filter(Boolean);
+    if (!pw.length) return 1;
+    var set = {};
+    norm(next).split(' ').forEach(function (w) { set[w] = true; });
+    var n = pw.filter(function (w) { return set[w]; }).length;
+    return n / pw.length;
+  }
+
+  // ---- state
+  function freshState() {
+    var layers = [];
+    for (var i = 0; i < ROUNDS; i++) layers.push({ status: 'pending', misses: 0, points: 0, mode: '', match: '' });
+    return { day: day, topic: topicMain, swapped: false, sentences: [], layers: layers, current: 0 };
+  }
+  var state = freshState();
+  if (!practice) {
+    var saved = load(KEY_STATE, null);
+    if (saved && saved.day === day && Array.isArray(saved.layers) && saved.layers.length === ROUNDS && Array.isArray(saved.sentences)) state = saved;
+  }
+  var stats = load(KEY_STATS, {});
+  stats.played = stats.played || 0; stats.total = stats.total || 0; stats.best = stats.best || 0;
+  stats.streak = stats.streak || 0; stats.maxStreak = stats.maxStreak || 0;
+  stats.words = stats.words || 0; stats.longest = stats.longest || 0;
+  stats.log = Array.isArray(stats.log) ? stats.log : [];
+  if (typeof stats.lastDay !== 'number') stats.lastDay = null;
+
+  function persist() { if (!practice) save(KEY_STATE, state); }
+
+  function started() { return state.sentences.length > 0; }
+  function current() { return state.sentences[state.sentences.length - 1] || ''; }
+  function done() { return started() && state.current >= ROUNDS; }
+  function layerAt(i) { return LAYERS[recipe[i]]; }
+  function tierFor(ly) { return POINTS[Math.min(ly.misses, POINTS.length - 1)]; }
+  function totalPoints() { return state.layers.reduce(function (s, ly) { return s + (ly.points || 0); }, 0); }
+  function cellClass(ly) { return ly.status !== 'done' ? '' : ly.mode === 'manual' ? 'mid' : 'hi'; }
+
+  // ---- highlighting: wrap each detected layer phrase in <mark>
+  function highlight(sentence, phrases) {
+    var s = prep(sentence), low = s.toLowerCase(), ranges = [];
+    phrases.forEach(function (p) {
+      if (!p) return;
+      var i = low.indexOf(p.toLowerCase());
+      if (i > -1) ranges.push([i, i + p.length]);
+    });
+    ranges.sort(function (a, b) { return a[0] - b[0]; });
+    var html = '', pos = 0;
+    ranges.forEach(function (r) {
+      if (r[0] < pos) return;                       // skip overlaps
+      html += esc(s.slice(pos, r[0])) + '<mark>' + esc(s.slice(r[0], r[1])) + '</mark>';
+      pos = r[1];
+    });
+    return html + esc(s.slice(pos));
+  }
+  function foundPhrases() {
+    return state.layers.filter(function (ly) { return ly.status === 'done' && ly.match; }).map(function (ly) { return ly.match; });
+  }
+
+  // ---- rendering
+  function renderDateline() {
+    if (practice) {
+      $('dateline').textContent = 'Day #' + dayNo + ' · Practice';
+      $('practiceNote').hidden = false;
+      $('practiceNote').innerHTML = 'You’re previewing day #' + dayNo + '. Nothing is saved. <a href="' + esc(location.pathname) + '">Back to today</a>';
+    } else {
+      var d = new Date();
+      $('dateline').textContent = '#' + dayNo + ' · ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+  }
+  function renderBall() {
+    var n = wordsOf(current()).length;
+    var size = Math.max(44, Math.min(88, Math.round(40 + n * 1.6)));
+    var ball = $('ball');
+    ball.style.width = size + 'px'; ball.style.height = size + 'px';
+    ball.style.fontSize = (n >= 100 ? 15 : 15 + Math.round((size - 44) / 6)) + 'px';
+    ball.textContent = n;
+    ball.setAttribute('aria-label', n + (n === 1 ? ' word' : ' words'));
+  }
+  function renderCells() {
+    $('cells').innerHTML = state.layers.map(function (ly, i) {
+      var L = layerAt(i), cls = 'cell';
+      if (ly.status === 'done') cls += ' ' + cellClass(ly);
+      else if (started() && i === state.current) cls += ' current';
+      var inner = ly.status === 'done' ? '<b>' + ly.points + '</b><span>' + esc(L.label) + '</span>' : '<span>' + esc(L.label) + '</span>';
+      return '<div class="' + cls + '" aria-label="Layer ' + (i + 1) + ', ' + esc(L.label) + (ly.status === 'done' ? ', ' + ly.points + ' points' : '') + '">' + inner + '</div>';
+    }).join('');
+  }
+  function renderTopic() {
+    $('topicText').textContent = TOPICS[state.topic].t;
+    $('swapWrap').hidden = started() || state.swapped;
+    $('startInput').placeholder = 'e.g. ' + TOPICS[state.topic].eg;
+  }
+  var lastLayerShown = -1;
+  function renderLayer() {
+    var i = state.current, L = layerAt(i), ly = state.layers[i];
+    var tier = tierFor(ly);
+    $('layerLabel').textContent = 'Layer ' + (i + 1) + ' of ' + ROUNDS + ' · worth ' + tier + ' point' + (tier === 1 ? '' : 's');
+    $('layerQ').textContent = L.q;
+    $('layerInst').textContent = L.inst;
+    $('layerEx').innerHTML = L.ex.map(function (e) { return '<span class="ex">' + esc(e) + '</span>'; }).join('');
+    $('layerTip').innerHTML = L.tip;
+    var n = wordsOf(current()).length;
+    $('sofarLabel').textContent = 'Your sentence so far · ' + n + (n === 1 ? ' word' : ' words');
+    $('sofarText').innerHTML = highlight(current(), foundPhrases());
+    if (lastLayerShown !== i) {
+      $('growInput').value = current();
+      $('nudge').hidden = true;
+      $('layerCard').classList.remove('fresh'); void $('layerCard').offsetWidth; $('layerCard').classList.add('fresh');
+      lastLayerShown = i;
+    }
+    renderCount();
+  }
+  function renderCount() {
+    var n = wordsOf($('growInput').value).length, base = wordsOf(current()).length, diff = n - base;
+    $('growCount').innerHTML = '<b>' + n + '</b> word' + (n === 1 ? '' : 's') + (diff > 0 ? ' · +' + diff : diff < 0 ? ' · ' + diff : '');
+  }
+  function renderSummary() {
+    var total = totalPoints(), fin = current(), start = state.sentences[0];
+    var nw = wordsOf(fin).length, sw = wordsOf(start).length;
+    $('finalText').innerHTML = '“' + highlight(fin, foundPhrases()) + '”';
+    $('growthLine').innerHTML = 'Started as <i>' + esc(prep(start)) + '</i> · ' + sw + ' → ' + nw + ' words';
+    $('scoreNum').textContent = total;
+    $('scoreVerdict').textContent =
+      total === 50 ? 'Perfect. Five layers, five first tries.' :
+      total >= 40 ? 'Strong. That’s a proper B2 sentence — read it out loud once.' :
+      total >= 30 ? 'Solid. Read it out loud and see if anything sounds off.' :
+      total >= 20 ? 'Getting there. The nudges are where the learning is.' :
+                    'Tough one. Tomorrow’s a fresh 50.';
+    $('recap').innerHTML = state.layers.map(function (ly, i) {
+      var L = layerAt(i);
+      var detail = ly.mode === 'manual' ? 'Your call' : ly.match ? '“' + esc(ly.match) + '”' : '';
+      return '<div class="recap-row"><div class="pts ' + (cellClass(ly) || 'zero') + '">' + ly.points + '</div>' +
+        '<div class="recap-name">' + esc(L.q) + '<small>' + detail + '</small></div></div>';
+    }).join('');
+    renderNextLine();
+  }
+  function renderNextLine() {
+    var el = $('nextLine');
+    if (practice) { el.innerHTML = 'Practice day — <a class="textlink" href="' + esc(location.pathname) + '">play today’s</a>'; return; }
+    var now = new Date();
+    var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    var diff = Math.max(0, next - now);
+    if (diff === 0) { location.reload(); return; }
+    var h = Math.floor(diff / 3600000), mi = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
+    el.textContent = 'A new topic in ' + [h, mi, s].map(function (x) { return (x < 10 ? '0' : '') + x; }).join(':');
+  }
+  function render() {
+    renderDateline(); renderBall(); renderCells(); renderTopic();
+    $('stepStart').hidden = started();
+    $('stepLayer').hidden = !started() || done();
+    $('stepDone').hidden = !done();
+    if (done()) renderSummary();
+    else if (started()) renderLayer();
+  }
+
+  // ---- toast
+  var toastTimer;
+  function toast(msg, ms) {
+    var t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, ms || 2000);
+  }
+
+  // ---- the starting sentence
+  $('btnSwap').addEventListener('click', function () {
+    if (started() || state.swapped) return;
+    state.topic = topicAlt; state.swapped = true;
+    persist(); render();
+    $('startInput').focus();
+  });
+  $('startForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (started()) return;
+    var raw = prep($('startInput').value), n = wordsOf(raw).length;
+    if (!n) { toast('Type your sentence first'); return; }
+    if (n < START_MIN) { toast('A whole sentence, please — at least a subject and a verb'); return; }
+    if (n > START_MAX) { toast('Keep the first one short — ' + START_MAX + ' words or fewer. You’ll grow it in a minute'); return; }
+    state.sentences = [raw];
+    persist(); render();
+    $('growInput').focus();
+  });
+
+  // ---- adding a layer
+  function hardChecks(next) {
+    var prev = current();
+    var n = wordsOf(next).length, base = wordsOf(prev).length;
+    if (!n) { toast('Type your sentence first'); return false; }
+    if (norm(next) === norm(prev)) { toast('Nothing changed — add the new layer to your sentence'); return false; }
+    if (n <= base) { toast('It didn’t get longer — add to the sentence rather than replacing words'); return false; }
+    if (kept(prev, next) < 0.5) { toast('You dropped most of what you had — keep the old sentence and add to it'); return false; }
+    return true;
+  }
+  function accept(next, mode, match) {
+    var i = state.current, ly = state.layers[i];
+    ly.status = 'done'; ly.mode = mode; ly.match = match || ''; ly.points = tierFor(ly);
+    state.sentences.push(prep(next));
+    state.current += 1;
+    $('nudge').hidden = true;
+    if (done()) finishDay();
+    persist(); render();
+    if (!done()) { $('growInput').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('growForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!started() || done()) return;
+    var next = prep($('growInput').value);
+    if (!hardChecks(next)) return;
+    var i = state.current, L = layerAt(i), ly = state.layers[i];
+    var m = newMatch(L, current(), next);
+    if (m) {
+      var pts = tierFor(ly);
+      toast((pts === 10 ? 'Found it — ' : 'There it is — ') + '+' + pts, 2200);
+      accept(next, 'auto', extend(next, m));
+      return;
+    }
+    ly.misses += 1;
+    if (ly.misses >= POINTS.length) {            // fifth miss: move on with the minimum
+      toast('Let’s move on — +' + POINTS[POINTS.length - 1], 2200);
+      accept(next, 'manual', '');
+      return;
+    }
+    persist();
+    renderCells();
+    $('layerLabel').textContent = 'Layer ' + (i + 1) + ' of ' + ROUNDS + ' · now worth ' + tierFor(ly) + ' points';
+    $('nudgeText').innerHTML = 'I can’t find ' + L.miss + ' in there. Try something like <i>' + esc(L.ex[ly.misses % L.ex.length]) + '</i> — or, if it’s already in your sentence, count it.';
+    $('nudge').hidden = false;
+    $('nudge').classList.remove('fresh'); void $('nudge').offsetWidth; $('nudge').classList.add('fresh');
+  });
+  $('growInput').addEventListener('input', renderCount);
+  $('growInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('btnAdd').click(); }
+  });
+  $('btnReset').addEventListener('click', function () {
+    $('growInput').value = current(); renderCount(); $('growInput').focus();
+  });
+  $('btnKeepEditing').addEventListener('click', function () { $('nudge').hidden = true; $('growInput').focus(); });
+  $('btnOverride').addEventListener('click', function () {
+    if (!started() || done()) return;
+    var next = prep($('growInput').value);
+    if (!hardChecks(next)) return;
+    var ly = state.layers[state.current];
+    toast('Your call — +' + tierFor(ly), 2200);
+    accept(next, 'manual', '');
+  });
+
+  // ---- finishing the day
+  function finishDay() {
+    if (practice) return;
+    var total = totalPoints(), fin = current(), nw = wordsOf(fin).length;
+    stats.played += 1;
+    stats.total += total;
+    stats.words += nw;
+    if (total > stats.best) stats.best = total;
+    if (nw > stats.longest) stats.longest = nw;
+    stats.streak = (stats.lastDay === day - 1) ? stats.streak + 1 : 1;
+    stats.lastDay = day;
+    if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+    var d = new Date();
+    stats.log.unshift({
+      dayNo: dayNo,
+      date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      topic: TOPICS[state.topic].t, start: state.sentences[0], final: fin,
+      score: total, words: nw, squares: squares()
+    });
+    if (stats.log.length > 100) stats.log.length = 100;
+    save(KEY_STATS, stats);
+  }
+
+  // ---- share
+  function squares() {
+    return state.layers.map(function (ly) { return ly.status !== 'done' ? '⬜' : ly.mode === 'manual' ? '🟨' : '🟩'; }).join('');
+  }
+  function shareText() {
+    var sw = wordsOf(state.sentences[0]).length, nw = wordsOf(current()).length;
+    var url = /^https?:/.test(location.protocol) ? '\n' + location.origin + location.pathname : '';
+    return SITE_NAME + ' #' + dayNo + ' · ' + totalPoints() + '/50 · ' + sw + ' → ' + nw + ' words\n' + squares() +
+      '\n“' + prep(current()) + '”' + url;
+  }
+  $('btnShare').addEventListener('click', function () {
+    var text = shareText();
+    function copy() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { toast('Copied — sentence included'); }, function () { toast('Couldn’t copy — take a screenshot instead'); });
+      } else { toast('Couldn’t copy — take a screenshot instead'); }
+    }
+    if (navigator.share) { navigator.share({ text: text }).catch(function (err) { if (err && err.name !== 'AbortError') copy(); }); }
+    else copy();
+  });
+
+  // ---- modals
+  function openModal(id) { $(id).hidden = false; }
+  function closeModal(id) { $(id).hidden = true; }
+  $('btnHelp').addEventListener('click', function () { openModal('modalHelp'); });
+  $('closeHelp').addEventListener('click', function () { closeModal('modalHelp'); save(KEY_SEEN, true); });
+  $('btnStats').addEventListener('click', function () { renderStats(); openModal('modalStats'); });
+  $('btnStats2').addEventListener('click', function () { renderStats(); openModal('modalStats'); });
+  $('closeStats').addEventListener('click', function () { closeModal('modalStats'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (m) {
+    m.addEventListener('click', function (e) { if (e.target === m) { m.hidden = true; if (m.id === 'modalHelp') save(KEY_SEEN, true); } });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeModal('modalHelp'); closeModal('modalStats'); save(KEY_SEEN, true); }
+  });
+  function renderStats() {
+    $('stPlayed').textContent = stats.played;
+    $('stAvg').textContent = stats.played ? Math.round(stats.total / stats.played) : 0;
+    $('stBest').textContent = stats.best;
+    $('stStreak').textContent = stats.streak;
+    $('stWords').textContent = stats.played ? Math.round(stats.words / stats.played) : 0;
+    $('stLongest').textContent = stats.longest;
+    $('log').innerHTML = stats.log.length ? stats.log.map(function (en) {
+      return '<div class="log-item"><p class="log-meta">#' + en.dayNo + ' · ' + esc(en.date) + ' · ' + en.score + '/50 · ' + en.words + ' words · ' + esc(en.topic) + '</p>' +
+        '<p class="log-text">' + esc(en.final) + '</p></div>';
+    }).join('') : '<p class="log-empty">Your finished sentences will collect here — one a day.</p>';
+  }
+
+  // ---- go
+  render();
+  if (!practice && !load(KEY_SEEN, false)) openModal('modalHelp');
+  setInterval(function () { if (done()) renderNextLine(); }, 1000);
+
+  // For checking the layer detectors from the browser console:
+  //   SnowballCheck('when', 'I drink coffee.', 'I drink coffee before work.')  → "before work" or null
+  window.SnowballCheck = function (layerId, prev, next) { var m = newMatch(LAYERS[layerId], prev, next); return m ? extend(next, m) : null; };
+})();
+</script>
+</body>
+</html>
